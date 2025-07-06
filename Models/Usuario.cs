@@ -1,4 +1,6 @@
-﻿namespace GestorDeGastos.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GestorDeGastos.Models
 {
     public class Usuario
     {
@@ -8,6 +10,7 @@
 
         public string NombreDeUsuario { get; set; }
 
+        [NotMapped]
         public HashCode Contraseña { get; set; }
 
         public string Tipo { get; set; }
