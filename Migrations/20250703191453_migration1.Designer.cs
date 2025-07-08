@@ -37,7 +37,7 @@ namespace GestorDeGastos.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Detalle")
+                    b.Property<string>("Comentario")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

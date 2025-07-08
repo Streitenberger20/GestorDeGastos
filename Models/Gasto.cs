@@ -6,9 +6,11 @@
 
         public DateOnly FechaGasto { get; set; }
 
-        public string Detalle { get; set; }
+        public string Comentario { get; set; }
 
         public string Categoria { get; set; }
+
+        public double Importe { get; set; }
 
         public int UsuarioID { get; set; }
         public Usuario Usuario { get; set; }

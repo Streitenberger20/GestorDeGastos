@@ -16,10 +16,13 @@
                 @Html.DisplayNameFor(model => model.FechaGasto)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Detalle)
+                @Html.DisplayNameFor(model => model.Comentario)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Categoria)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Importe)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Usuario)
@@ -34,10 +37,13 @@
                 @Html.DisplayFor(modelItem => item.FechaGasto)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Detalle)
+                @Html.DisplayFor(modelItem => item.Comentario)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Categoria)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Importe)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Usuario.Id)
