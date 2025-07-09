@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GestorDeGastos.Models
 {
@@ -10,11 +11,11 @@ namespace GestorDeGastos.Models
 
         public string NombreDeUsuario { get; set; }
 
-        [NotMapped]
-        public HashCode Contraseña { get; set; }
+        public string Contraseña { get; set; }
 
         public string Tipo { get; set; }
 
+        [ValidateNever]
         public List<Gasto> Gastos { get; set; }
 
         public Usuario() { }
