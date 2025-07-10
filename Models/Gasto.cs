@@ -17,8 +17,6 @@ namespace GestorDeGastos.Models
         public double Importe { get; set; }
 
         public int UsuarioId { get; set; }
-
-        [ValidateNever]
         public Usuario Usuario { get; set; }
 
         public Gasto() { }

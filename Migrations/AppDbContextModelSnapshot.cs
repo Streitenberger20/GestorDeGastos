@@ -22,6 +22,28 @@ namespace GestorDeGastos.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("GestorDeGastos.Models.Categoria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RolId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RolId");
+
+                    b.ToTable("Categoria");
+                });
+
             modelBuilder.Entity("GestorDeGastos.Models.Gasto", b =>
                 {
                     b.Property<int>("Id")
@@ -30,9 +52,8 @@ namespace GestorDeGastos.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Categoria")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("CategoriaId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Comentario")
                         .IsRequired()
@@ -44,14 +65,33 @@ namespace GestorDeGastos.Migrations
                     b.Property<double>("Importe")
                         .HasColumnType("float");
 
-                    b.Property<int>("UsuarioID")
+                    b.Property<int>("UsuarioId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UsuarioID");
+                    b.HasIndex("CategoriaId");
+
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("Gasto");
+                });
+
+            modelBuilder.Entity("GestorDeGastos.Models.Rol", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Rol");
                 });
 
             modelBuilder.Entity("GestorDeGastos.Models.Usuario", b =>
@@ -74,24 +114,55 @@ namespace GestorDeGastos.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Tipo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("RolId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RolId");
 
                     b.ToTable("Usuario");
                 });
 
-            modelBuilder.Entity("GestorDeGastos.Models.Gasto", b =>
+            modelBuilder.Entity("GestorDeGastos.Models.Categoria", b =>
                 {
-                    b.HasOne("GestorDeGastos.Models.Usuario", "Usuario")
-                        .WithMany("Gastos")
-                        .HasForeignKey("UsuarioID")
+                    b.HasOne("GestorDeGastos.Models.Rol", "Rol")
+                        .WithMany()
+                        .HasForeignKey("RolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Rol");
+                });
+
+            modelBuilder.Entity("GestorDeGastos.Models.Gasto", b =>
+                {
+                    b.HasOne("GestorDeGastos.Models.Categoria", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GestorDeGastos.Models.Usuario", "Usuario")
+                        .WithMany("Gastos")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Categoria");
+
                     b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("GestorDeGastos.Models.Usuario", b =>
+                {
+                    b.HasOne("GestorDeGastos.Models.Rol", "Rol")
+                        .WithMany()
+                        .HasForeignKey("RolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Rol");
                 });
 
             modelBuilder.Entity("GestorDeGastos.Models.Usuario", b =>
