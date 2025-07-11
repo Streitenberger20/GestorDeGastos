@@ -49,8 +49,8 @@ namespace GestorDeGastos.Controllers
         // GET: Gastos/Create
         public IActionResult Create()
         {
-            ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Id");
-            ViewData["UsuarioId"] = new SelectList(_context.Usuario, "Id", "Id");
+            ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Nombre");
+            ViewBag.UsuarioId = HttpContext.Session.GetString("Id");
             return View();
         }
 
@@ -61,14 +61,14 @@ namespace GestorDeGastos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FechaGasto,Comentario,CategoriaId,Importe,UsuarioId")] Gasto gasto)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 _context.Add(gasto);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Id", gasto.CategoriaId);
-            ViewData["UsuarioId"] = new SelectList(_context.Usuario, "Id", "Id", gasto.UsuarioId);
+            ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Nombre", gasto.CategoriaId);
+            ViewBag.UsuarioId = HttpContext.Session.GetString("Id");
             return View(gasto);
         }
 
@@ -85,8 +85,8 @@ namespace GestorDeGastos.Controllers
             {
                 return NotFound();
             }
-            ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Id", gasto.CategoriaId);
-            ViewData["UsuarioId"] = new SelectList(_context.Usuario, "Id", "Id", gasto.UsuarioId);
+            ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Nombre", gasto.CategoriaId);
+            ViewBag.UsuarioId = HttpContext.Session.GetString("Id");
             return View(gasto);
         }
 

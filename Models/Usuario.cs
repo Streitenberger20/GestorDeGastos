@@ -13,8 +13,7 @@ namespace GestorDeGastos.Models
 
         public string Contraseña { get; set; }
 
-        public int RolId { get; set; }
-        public Rol Rol { get; set; }
+        public string Rol {  get; set; }
 
         public List<Gasto> Gastos { get; set; }
 

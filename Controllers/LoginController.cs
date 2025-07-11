@@ -28,9 +28,17 @@ namespace GestorDeGastos.Controllers
             {
                 HttpContext.Session.SetString("Usuario", usuario.NombreDeUsuario);
                 HttpContext.Session.SetString("Id", usuario.Id.ToString());
-                HttpContext.Session.SetString("Rol", usuario.RolId.ToString());
+                HttpContext.Session.SetString("Rol", usuario.Rol);
 
-                return RedirectToAction("Index", "Home");
+                if (usuario.Rol == "Jefe")
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    
+                    return RedirectToAction("Create", "Gastos");
+                }
             }
 
             ViewBag.Error = "Usuario o clave incorrecta";

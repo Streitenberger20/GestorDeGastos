@@ -1,27 +1,22 @@
 ﻿@model GestorDeGastos.Models.Gasto
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Registrar Gasto";
 }
 
-<h1>Create</h1>
+<h1>Registrar Gasto</h1>
 
-<h4>Gasto</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="FechaGasto" class="control-label"></label>
-                <input asp-for="FechaGasto" class="form-control" />
+                <label asp-for="FechaGasto" class="control-label">Fecha de registro</label>
+                <input asp-for="FechaGasto" value="@DateOnly.FromDateTime(DateTime.Now)" class="form-control" readonly />
                 <span asp-validation-for="FechaGasto" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Comentario" class="control-label"></label>
-                <input asp-for="Comentario" class="form-control" />
-                <span asp-validation-for="Comentario" class="text-danger"></span>
-            </div>
+
             <div class="form-group">
                 <label asp-for="CategoriaId" class="control-label"></label>
                 <select asp-for="CategoriaId" class ="form-control" asp-items="ViewBag.CategoriaId"></select>
@@ -32,8 +27,12 @@
                 <span asp-validation-for="Importe" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UsuarioId" class="control-label"></label>
-                <select asp-for="UsuarioId" class ="form-control" asp-items="ViewBag.UsuarioId"></select>
+                <label asp-for="Comentario" class="control-label"></label>
+                <input asp-for="Comentario" class="form-control" />
+                <span asp-validation-for="Comentario" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input asp-for="UsuarioId" class="form-control" value=@ViewBag.UsuarioId hidden/>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
