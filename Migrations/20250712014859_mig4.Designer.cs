@@ -4,6 +4,7 @@ using GestorDeGastos.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestorDeGastos.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250712014859_mig4")]
+    partial class mig4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,9 +71,6 @@ namespace GestorDeGastos.Migrations
                     b.Property<int>("RubroId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("RubroId1")
-                        .HasColumnType("int");
-
                     b.Property<int>("UsuarioId")
                         .HasColumnType("int");
 
@@ -79,8 +79,6 @@ namespace GestorDeGastos.Migrations
                     b.HasIndex("DescripcionId");
 
                     b.HasIndex("RubroId");
-
-                    b.HasIndex("RubroId1");
 
                     b.HasIndex("UsuarioId");
 
@@ -167,7 +165,7 @@ namespace GestorDeGastos.Migrations
                     b.HasOne("GestorDeGastos.Models.Rubro", "Rubro")
                         .WithMany("Descripciones")
                         .HasForeignKey("RubroId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Rubro");
@@ -178,23 +176,19 @@ namespace GestorDeGastos.Migrations
                     b.HasOne("GestorDeGastos.Models.Descripcion", "Descripcion")
                         .WithMany()
                         .HasForeignKey("DescripcionId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("GestorDeGastos.Models.Rubro", "Rubro")
-                        .WithMany()
-                        .HasForeignKey("RubroId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("GestorDeGastos.Models.Rubro", null)
                         .WithMany("Gastos")
-                        .HasForeignKey("RubroId1");
+                        .HasForeignKey("RubroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("GestorDeGastos.Models.Usuario", "Usuario")
                         .WithMany("Gastos")
                         .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Descripcion");

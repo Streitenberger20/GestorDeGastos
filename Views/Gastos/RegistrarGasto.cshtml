@@ -1,0 +1,65 @@
+﻿@model Gasto
+
+<h2>Nuevo Gasto</h2>
+
+<form asp-action="RegistrarGasto" method="post">
+    <div class="form-group">
+        <label>Fecha</label>
+        <input asp-for="FechaGasto" type="date" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Importe</label>
+        <input asp-for="Importe" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Moneda</label>
+        <select asp-for="Moneda" class="form-control">
+            <option value="AR$">AR$</option>
+            <option value="USD">USD</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Rubro</label>
+        <select id="RubroId" name="RubroId" class="form-control">
+            <option value="">-- Seleccione --</option>
+            @foreach (var item in ViewBag.Rubros as SelectList)
+            {
+                <option value="@item.Value">@item.Text</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Descripción</label>
+        <select id="DescripcionId" name="DescripcionId" class="form-control">
+            <option value="">-- Seleccione un rubro primero --</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</form>
+
+@section Scripts {
+    <script>
+        document.getElementById("RubroId").addEventListener("change", function () {
+            var rubroId = this.value;
+
+            fetch('/Gastos/ObtenerDescripciones?rubroId=' + rubroId)
+                .then(response => response.json())
+                .then(data => {
+                    var descripcionSelect = document.getElementById("DescripcionId");
+                    descripcionSelect.innerHTML = "";
+
+                    data.forEach(function (item) {
+                        var option = document.createElement("option");
+                        option.value = item.id;
+                        option.text = item.nombreDescripcion;
+                        descripcionSelect.appendChild(option);
+                    });
+                });
+        });
+    </script>
+}
