@@ -1,18 +1,16 @@
-using GestorDeGastos.Data;
+ï»¿using GestorDeGastos.Data;
 using GestorDeGastos.DTOs;
-using GestorDeGastos.Models;
 using GestorDeGastos.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 
 namespace GestorDeGastos.Controllers
 {
-    public class HomeController : Controller
+    public class DashboardController : Controller
     {
         private readonly AppDbContext _context;
 
-        public HomeController(AppDbContext context)
+        public DashboardController(AppDbContext context)
         {
             _context = context;
         }
@@ -27,8 +25,8 @@ namespace GestorDeGastos.Controllers
                 .ToListAsync();
 
             var mesActual = hoy.Month;
-            var añoActual = hoy.Year;
-            var gastosDelMes = gastos.Where(g => g.FechaGasto.Month == mesActual && g.FechaGasto.Year == añoActual).ToList();
+            var aÃ±oActual = hoy.Year;
+            var gastosDelMes = gastos.Where(g => g.FechaGasto.Month == mesActual && g.FechaGasto.Year == aÃ±oActual).ToList();
 
             var usuarios = gastosDelMes.Select(g => g.UsuarioId).Distinct().Count();
 

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestorDeGastos.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250712014859_mig4")]
-    partial class mig4
+    [Migration("20250714155510_mig1")]
+    partial class mig1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -62,11 +62,13 @@ namespace GestorDeGastos.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("Importe")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Moneda")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
 
                     b.Property<int>("RubroId")
                         .HasColumnType("int");
@@ -165,7 +167,7 @@ namespace GestorDeGastos.Migrations
                     b.HasOne("GestorDeGastos.Models.Rubro", "Rubro")
                         .WithMany("Descripciones")
                         .HasForeignKey("RubroId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Rubro");
@@ -176,19 +178,19 @@ namespace GestorDeGastos.Migrations
                     b.HasOne("GestorDeGastos.Models.Descripcion", "Descripcion")
                         .WithMany()
                         .HasForeignKey("DescripcionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("GestorDeGastos.Models.Rubro", "Rubro")
                         .WithMany("Gastos")
                         .HasForeignKey("RubroId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("GestorDeGastos.Models.Usuario", "Usuario")
                         .WithMany("Gastos")
                         .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Descripcion");

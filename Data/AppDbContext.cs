@@ -16,7 +16,7 @@ namespace GestorDeGastos.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // 🔹 Tabla intermedia RolRubro (muchos a muchos)
+            // RolRubro
             modelBuilder.Entity<RolRubro>()
                 .HasKey(rr => new { rr.RolId, rr.RubroId });
 
@@ -32,40 +32,43 @@ namespace GestorDeGastos.Data
                 .HasForeignKey(rr => rr.RubroId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // 🔹 Rubro → Descripciones (1:N)
+            // Rubro → Descripciones
             modelBuilder.Entity<Rubro>()
                 .HasMany(r => r.Descripciones)
                 .WithOne(d => d.Rubro)
                 .HasForeignKey(d => d.RubroId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 🔹 Usuario → Gastos (1:N)
+            // Usuario → Gastos
             modelBuilder.Entity<Usuario>()
                 .HasMany(u => u.Gastos)
                 .WithOne(g => g.Usuario)
                 .HasForeignKey(g => g.UsuarioId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 🔹 Gasto → Rubro (N:1)
+            // Gasto → Rubro
             modelBuilder.Entity<Gasto>()
                 .HasOne(g => g.Rubro)
-                .WithMany()
+                .WithMany(r => r.Gastos) // 👈 Ahora sí apuntamos a la propiedad real
                 .HasForeignKey(g => g.RubroId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 🔹 Gasto → Descripcion (N:1)
+            // Gasto → Descripcion
             modelBuilder.Entity<Gasto>()
                 .HasOne(g => g.Descripcion)
                 .WithMany()
                 .HasForeignKey(g => g.DescripcionId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 🔹 Gasto → Usuario (N:1) ya definido más arriba, pero aquí por claridad
+            // Precisión del campo decimal
             modelBuilder.Entity<Gasto>()
-                .HasOne(g => g.Usuario)
-                .WithMany(u => u.Gastos)
-                .HasForeignKey(g => g.UsuarioId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .Property(g => g.Importe)
+                .HasPrecision(18, 2);
+
+            // Longitud de Moneda (opcional)
+            modelBuilder.Entity<Gasto>()
+                .Property(g => g.Moneda)
+                .HasMaxLength(3);
         }
     }
 }

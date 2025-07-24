@@ -59,16 +59,15 @@ namespace GestorDeGastos.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("Importe")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Moneda")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
 
                     b.Property<int>("RubroId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("RubroId1")
                         .HasColumnType("int");
 
                     b.Property<int>("UsuarioId")
@@ -79,8 +78,6 @@ namespace GestorDeGastos.Migrations
                     b.HasIndex("DescripcionId");
 
                     b.HasIndex("RubroId");
-
-                    b.HasIndex("RubroId1");
 
                     b.HasIndex("UsuarioId");
 
@@ -182,14 +179,10 @@ namespace GestorDeGastos.Migrations
                         .IsRequired();
 
                     b.HasOne("GestorDeGastos.Models.Rubro", "Rubro")
-                        .WithMany()
+                        .WithMany("Gastos")
                         .HasForeignKey("RubroId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("GestorDeGastos.Models.Rubro", null)
-                        .WithMany("Gastos")
-                        .HasForeignKey("RubroId1");
 
                     b.HasOne("GestorDeGastos.Models.Usuario", "Usuario")
                         .WithMany("Gastos")

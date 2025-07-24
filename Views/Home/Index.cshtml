@@ -1,5 +1,118 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model GestorDeGastos.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<h2 class="mb-4">Gastos del mes</h2>
 
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Total AR$</h5>
+                <p class="card-text">@Model.TotalARS.ToString("C")</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Total USD</h5>
+                <p class="card-text">@Model.TotalUSD.ToString("C")</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Cantidad de gastos</h5>
+                <p class="card-text">@Model.TotalGastos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger">
+            <div class="card-body">
+                <h5 class="card-title">Gasto promedio</h5>
+                <p class="card-text">@Model.PromedioPorEmpleado.ToString("C")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="mt-5">Rubros más usados</h3>
+<div style="max-width: 400px;">
+    <canvas id="rubrosChart"></canvas>
+</div>
+
+<h3 class="mt-5">Gastos por usuario</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.GastosPorUsuario)
+        {
+            <tr>
+                <td>@item.Usuario</td>
+                <td>@item.Total.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2 class="mt-5">Últimos 3 meses (excluyendo el mes actual)</h2>
+<canvas id="gastosMesesChart" width="800" height="300"></canvas>
+
+<a class="btn btn-outline-secondary mt-4" asp-action="ExportarPDF">Exportar PDF</a>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctxMeses = document.getElementById('gastosMesesChart');
+        const gastosMesesChart = new Chart(ctxMeses, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.GastosUltimosTresMeses.Select(g => g.Mes))),
+                datasets: [
+                    {
+                        label: 'AR$',
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        data: @Html.Raw(Json.Serialize(Model.GastosUltimosTresMeses.Select(g => g.TotalARS)))
+                    },
+                    {
+                        label: 'USD',
+                        backgroundColor: 'rgba(255, 206, 86, 0.6)',
+                        data: @Html.Raw(Json.Serialize(Model.GastosUltimosTresMeses.Select(g => g.TotalUSD)))
+                    }
+                ]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
+
+        const ctxRubros = document.getElementById('rubrosChart');
+        const rubrosChart = new Chart(ctxRubros, {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.RubrosMasUsados.Select(r => r.Rubro))),
+                datasets: [{
+                    label: 'Uso de rubros',
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 206, 86, 0.6)',
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(153, 102, 255, 0.6)'
+                    ],
+                    data: @Html.Raw(Json.Serialize(Model.RubrosMasUsados.Select(r => r.Porcentaje)))
+                }]
+            },
+            options: { responsive: true }
+        });
+    </script>
+}

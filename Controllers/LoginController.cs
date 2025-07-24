@@ -20,7 +20,18 @@ namespace GestorDeGastos.Controllers
         [HttpGet]
         public ActionResult Login()
         {
-            return View();
+            if (User.IsInRole("Jefe"))
+            {
+               return RedirectToAction("Index", "Home");
+            }
+            if (User.IsInRole("Empleado"))
+            {
+                return RedirectToAction("RegistrarGasto", "Gastos");
+            }
+            else
+            {
+                return View();
+            }
         }
 
         [HttpPost]
@@ -43,7 +54,14 @@ namespace GestorDeGastos.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-                return RedirectToAction("Index", "Home");
+                if (principal.IsInRole("Jefe"))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    return RedirectToAction("RegistrarGasto", "Gastos");
+                }
             }
 
             ViewBag.Error = "Usuario o contraseña incorrecta";
