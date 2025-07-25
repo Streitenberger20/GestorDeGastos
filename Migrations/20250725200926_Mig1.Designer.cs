@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestorDeGastos.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250714155510_mig1")]
-    partial class mig1
+    [Migration("20250725200926_Mig1")]
+    partial class Mig1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace GestorDeGastos.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("GestorDeGastos.Models.Descripcion", b =>
+            modelBuilder.Entity("GestorDeGastos.Models.Detalle", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -33,7 +33,7 @@ namespace GestorDeGastos.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("NombreDescripcion")
+                    b.Property<string>("NombreDetalle")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -44,7 +44,7 @@ namespace GestorDeGastos.Migrations
 
                     b.HasIndex("RubroId");
 
-                    b.ToTable("Descripciones");
+                    b.ToTable("Detalles");
                 });
 
             modelBuilder.Entity("GestorDeGastos.Models.Gasto", b =>
@@ -55,7 +55,7 @@ namespace GestorDeGastos.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("DescripcionId")
+                    b.Property<int>("DetalleId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("FechaGasto")
@@ -78,7 +78,7 @@ namespace GestorDeGastos.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DescripcionId");
+                    b.HasIndex("DetalleId");
 
                     b.HasIndex("RubroId");
 
@@ -162,10 +162,10 @@ namespace GestorDeGastos.Migrations
                     b.ToTable("Usuarios");
                 });
 
-            modelBuilder.Entity("GestorDeGastos.Models.Descripcion", b =>
+            modelBuilder.Entity("GestorDeGastos.Models.Detalle", b =>
                 {
                     b.HasOne("GestorDeGastos.Models.Rubro", "Rubro")
-                        .WithMany("Descripciones")
+                        .WithMany("Detalles")
                         .HasForeignKey("RubroId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -175,9 +175,9 @@ namespace GestorDeGastos.Migrations
 
             modelBuilder.Entity("GestorDeGastos.Models.Gasto", b =>
                 {
-                    b.HasOne("GestorDeGastos.Models.Descripcion", "Descripcion")
+                    b.HasOne("GestorDeGastos.Models.Detalle", "Detalle")
                         .WithMany()
-                        .HasForeignKey("DescripcionId")
+                        .HasForeignKey("DetalleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -193,7 +193,7 @@ namespace GestorDeGastos.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Descripcion");
+                    b.Navigation("Detalle");
 
                     b.Navigation("Rubro");
 
@@ -239,7 +239,7 @@ namespace GestorDeGastos.Migrations
 
             modelBuilder.Entity("GestorDeGastos.Models.Rubro", b =>
                 {
-                    b.Navigation("Descripciones");
+                    b.Navigation("Detalles");
 
                     b.Navigation("Gastos");
 

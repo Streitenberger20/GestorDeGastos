@@ -1,9 +1,10 @@
 ﻿@model IEnumerable<GestorDeGastos.Models.Rubro>
 
 @{
-    ViewData["Title"] = "Listado de rubros";
+    ViewData["Title"] = "Rubros";
 }
 
+<h1>Rubros</h1>
 
 <p>
     <a asp-action="CrearRubro">Crear nuevo Rubro</a>
@@ -25,9 +26,7 @@
                     @Html.DisplayFor(modelItem => item.NombreRubro)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a asp-action="DetallesRubro" asp-route-id="@item.Id">Ver Detalles</a> 
                 </td>
             </tr>
         }

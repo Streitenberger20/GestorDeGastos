@@ -1,118 +1,150 @@
 ﻿@model GestorDeGastos.ViewModels.DashboardViewModel
-
+@using System.Globalization
 @{
-    ViewData["Title"] = "Dashboard";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Dashboard Jefe";
 }
 
-<h2 class="mb-4">Gastos del mes</h2>
+<div class="container mt-4">
+    <h2>📊 Dashboard de Gastos - Jefe</h2>
 
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-white bg-primary">
-            <div class="card-body">
-                <h5 class="card-title">Total AR$</h5>
-                <p class="card-text">@Model.TotalARS.ToString("C")</p>
+    <!-- Totales del mes actual -->
+    <div class="row my-4">
+        <div class="col-md-6">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5>Total del mes en AR$</h5>
+                    <p class="h4">@Model.TotalMesPesos.ToString("C", CultureInfo.CreateSpecificCulture("es-AR"))</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5>Total del mes en USD</h5>
+                    <p class="h4">US$ @Model.TotalMesDolares.ToString("N2")</p>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <h5 class="card-title">Total USD</h5>
-                <p class="card-text">@Model.TotalUSD.ToString("C")</p>
-            </div>
+
+    <!-- Gráfico de rubros -->
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <h5>📁 Distribución por Rubros (Mes Actual)</h5>
+            <canvas id="graficoRubros"></canvas>
+        </div>
+
+        <!-- Comparativa 6 meses -->
+        <div class="col-md-6">
+            <h5>📈 Comparativa AR$ vs USD - Últimos 6 meses</h5>
+            <canvas id="graficoComparativa"></canvas>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-warning">
-            <div class="card-body">
-                <h5 class="card-title">Cantidad de gastos</h5>
-                <p class="card-text">@Model.TotalGastos</p>
-            </div>
+
+    <!-- Tabla de gastos en pesos -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5>💰 Gastos en Pesos (Mes Actual)</h5>
+            <table class="table table-bordered table-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Usuario</th>
+                        <th>Rubro</th>
+                        <th>Detalle</th>
+                        <th>Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var g in Model.GastosPesos)
+                    {
+                        <tr>
+                            <td>@g.Fecha.ToShortDateString()</td>
+                            <td>@g.Usuario</td>
+                            <td>@g.Rubro</td>
+                            <td>@g.Detalle</td>
+                            <td>@g.Monto.ToString("C", CultureInfo.CreateSpecificCulture("es-AR"))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-danger">
-            <div class="card-body">
-                <h5 class="card-title">Gasto promedio</h5>
-                <p class="card-text">@Model.PromedioPorEmpleado.ToString("C")</p>
-            </div>
+
+    <!-- Tabla de gastos en dólares -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h5>💵 Gastos en Dólares (Mes Actual)</h5>
+            <table class="table table-bordered table-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Usuario</th>
+                        <th>Rubro</th>
+                        <th>Detalle</th>
+                        <th>Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var g in Model.GastosDolares)
+                    {
+                        <tr>
+                            <td>@g.Fecha.ToShortDateString()</td>
+                            <td>@g.Usuario</td>
+                            <td>@g.Rubro</td>
+                            <td>@g.Detalle</td>
+                            <td>US$ @g.Monto.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
-
-<h3 class="mt-5">Rubros más usados</h3>
-<div style="max-width: 400px;">
-    <canvas id="rubrosChart"></canvas>
-</div>
-
-<h3 class="mt-5">Gastos por usuario</h3>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Usuario</th>
-            <th>Total</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.GastosPorUsuario)
-        {
-            <tr>
-                <td>@item.Usuario</td>
-                <td>@item.Total.ToString("C")</td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<h2 class="mt-5">Últimos 3 meses (excluyendo el mes actual)</h2>
-<canvas id="gastosMesesChart" width="800" height="300"></canvas>
-
-<a class="btn btn-outline-secondary mt-4" asp-action="ExportarPDF">Exportar PDF</a>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const ctxMeses = document.getElementById('gastosMesesChart');
-        const gastosMesesChart = new Chart(ctxMeses, {
+        // Gráfico de Rubros
+        const ctxRubros = document.getElementById('graficoRubros').getContext('2d');
+        const chartRubros = new Chart(ctxRubros, {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.CategoriasDelMes.Select(c => c.Nombre))),
+                datasets: [{
+                    label: 'Total por rubro',
+                    data: @Html.Raw(Json.Serialize(Model.CategoriasDelMes.Select(c => c.Total))),
+                    backgroundColor: ['#007bff', '#28a745', '#ffc107', '#17a2b8', '#dc3545', '#6c757d']
+                }]
+            }
+        });
+
+        // Comparativa 6 meses
+        const ctxComparativa = document.getElementById('graficoComparativa').getContext('2d');
+        const chartComparativa = new Chart(ctxComparativa, {
             type: 'bar',
             data: {
-                labels: @Html.Raw(Json.Serialize(Model.GastosUltimosTresMeses.Select(g => g.Mes))),
+                labels: @Html.Raw(Json.Serialize(Model.Comparativa6Meses.Select(m => m.Mes))),
                 datasets: [
                     {
-                        label: 'AR$',
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        data: @Html.Raw(Json.Serialize(Model.GastosUltimosTresMeses.Select(g => g.TotalARS)))
+                        label: 'Pesos (AR$)',
+                        backgroundColor: '#28a745',
+                        data: @Html.Raw(Json.Serialize(Model.Comparativa6Meses.Select(m => m.TotalPesos)))
                     },
                     {
-                        label: 'USD',
-                        backgroundColor: 'rgba(255, 206, 86, 0.6)',
-                        data: @Html.Raw(Json.Serialize(Model.GastosUltimosTresMeses.Select(g => g.TotalUSD)))
+                        label: 'Dólares (USD)',
+                        backgroundColor: '#17a2b8',
+                        data: @Html.Raw(Json.Serialize(Model.Comparativa6Meses.Select(m => m.TotalDolares)))
                     }
                 ]
             },
-            options: { responsive: true, scales: { y: { beginAtZero: true } } }
-        });
-
-        const ctxRubros = document.getElementById('rubrosChart');
-        const rubrosChart = new Chart(ctxRubros, {
-            type: 'pie',
-            data: {
-                labels: @Html.Raw(Json.Serialize(Model.RubrosMasUsados.Select(r => r.Rubro))),
-                datasets: [{
-                    label: 'Uso de rubros',
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.6)',
-                        'rgba(54, 162, 235, 0.6)',
-                        'rgba(255, 206, 86, 0.6)',
-                        'rgba(75, 192, 192, 0.6)',
-                        'rgba(153, 102, 255, 0.6)'
-                    ],
-                    data: @Html.Raw(Json.Serialize(Model.RubrosMasUsados.Select(r => r.Porcentaje)))
-                }]
-            },
-            options: { responsive: true }
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
         });
     </script>
 }

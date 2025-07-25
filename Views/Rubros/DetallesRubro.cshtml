@@ -1,0 +1,38 @@
+﻿@model GestorDeGastos.Models.Rubro
+
+@{
+    ViewData["Title"] = "Detalles Rubro";
+}
+
+<h1>Detalles de rubro:</h1>
+
+<label asp-for="NombreRubro">Nombre:</label>
+<input asp-for="NombreRubro" class="form-control" readonly />
+<span asp-validation-for="NombreRubro" class="text-danger"></span>
+
+<h2>Detalles:</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre Detalle</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var detalle in Model.Detalles)
+        {
+            <tr>
+                <td>@detalle.NombreDetalle</td>
+                <td>
+                    <a asp-controller="Detalles" asp-action="EditarDetalle" asp-route-id="@detalle.Id">Editar</a> |
+                    <a asp-controller="Detalles" asp-action="EliminarDetalle" asp-route-id="@detalle.Id">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>
+<p>
+    <a asp-controller="Detalles" asp-action="CrearDetalle" asp-route-id="@Model.Id">Agregar Detalle</a>
+    <a asp-action="ListadoRubros">Atras</a>
+</p>

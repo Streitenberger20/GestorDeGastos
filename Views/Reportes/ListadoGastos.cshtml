@@ -1,0 +1,85 @@
+﻿@model GestorDeGastos.ViewModels.GastoFiltroViewModel
+
+<div class="container mt-4">
+    <h2>📋 Listado de Gastos</h2>
+
+    <!-- Filtros -->
+    <form method="get" class="row mb-4">
+        <div class="col-md-3">
+            <label>Desde</label>
+            <input type="date" class="form-control" name="fechaDesde" value="@Model.FechaDesde?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-3">
+            <label>Hasta</label>
+            <input type="date" class="form-control" name="fechaHasta" value="@Model.FechaHasta?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-3">
+            <label>Usuario</label>
+            <select class="form-select" name="usuarioId">
+                <option value="">-- Todos --</option>
+                @foreach (var u in Model.Usuarios)
+                {
+                    <option value="@u.Id">@u.NombreUsuario</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>Rubro</label>
+            <select class="form-select" name="rubroId">
+                <option value="">-- Todos --</option>
+                @foreach (var r in Model.Rubros)
+                {
+                    <option value="@r.Id">@r.NombreRubro</option>
+                }
+            </select>
+        </div>
+        <div class="col-12 mt-3">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+    </form>
+
+    <!-- Resultados -->
+    @if (Model.Resultados.Any())
+    {
+        <table class="table table-bordered table-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Rubro</th>
+                    <th>Detalle</th>
+                    <th>Monto</th>
+                    <th>Moneda</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var g in Model.Resultados)
+                {
+                    <tr>
+                        <td>@g.Fecha.ToShortDateString()</td>
+                        <td>@g.Usuario</td>
+                        <td>@g.Rubro</td>
+                        <td>@g.Detalle</td>
+                        <td>@g.Monto.ToString("N2")</td>
+                        <td>@g.Moneda</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <a class="btn btn-success mt-2"
+   href="@Url.Action("ExportarExcel", "Reportes", new { 
+       fechaDesde = Model.FechaDesde?.ToString("yyyy-MM-dd"), 
+       fechaHasta = Model.FechaHasta?.ToString("yyyy-MM-dd"), 
+       usuarioId = Model.UsuarioId, 
+       rubroId = Model.RubroId 
+   })">
+    📤 Exportar a Excel
+</a>
+    }
+    else
+    {
+        <div class="alert alert-info">No se encontraron gastos con los filtros seleccionados.</div>
+    }
+</div>
+

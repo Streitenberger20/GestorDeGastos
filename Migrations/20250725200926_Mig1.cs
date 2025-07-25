@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GestorDeGastos.Migrations
 {
     /// <inheritdoc />
-    public partial class mig1 : Migration
+    public partial class Mig1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -59,19 +59,19 @@ namespace GestorDeGastos.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Descripciones",
+                name: "Detalles",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    NombreDescripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NombreDetalle = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RubroId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Descripciones", x => x.Id);
+                    table.PrimaryKey("PK_Detalles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Descripciones_Rubros_RubroId",
+                        name: "FK_Detalles_Rubros_RubroId",
                         column: x => x.RubroId,
                         principalTable: "Rubros",
                         principalColumn: "Id",
@@ -113,15 +113,15 @@ namespace GestorDeGastos.Migrations
                     Moneda = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
                     UsuarioId = table.Column<int>(type: "int", nullable: false),
                     RubroId = table.Column<int>(type: "int", nullable: false),
-                    DescripcionId = table.Column<int>(type: "int", nullable: false)
+                    DetalleId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Gastos", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Gastos_Descripciones_DescripcionId",
-                        column: x => x.DescripcionId,
-                        principalTable: "Descripciones",
+                        name: "FK_Gastos_Detalles_DetalleId",
+                        column: x => x.DetalleId,
+                        principalTable: "Detalles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -139,14 +139,14 @@ namespace GestorDeGastos.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Descripciones_RubroId",
-                table: "Descripciones",
+                name: "IX_Detalles_RubroId",
+                table: "Detalles",
                 column: "RubroId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Gastos_DescripcionId",
+                name: "IX_Gastos_DetalleId",
                 table: "Gastos",
-                column: "DescripcionId");
+                column: "DetalleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Gastos_RubroId",
@@ -179,7 +179,7 @@ namespace GestorDeGastos.Migrations
                 name: "RolRubros");
 
             migrationBuilder.DropTable(
-                name: "Descripciones");
+                name: "Detalles");
 
             migrationBuilder.DropTable(
                 name: "Usuarios");

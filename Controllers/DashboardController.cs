@@ -1,8 +1,8 @@
 ﻿using GestorDeGastos.Data;
-using GestorDeGastos.DTOs;
 using GestorDeGastos.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace GestorDeGastos.Controllers
 {
@@ -18,53 +18,75 @@ namespace GestorDeGastos.Controllers
         public async Task<IActionResult> Index()
         {
             var hoy = DateTime.Today;
+            var primerDiaMesActual = new DateTime(hoy.Year, hoy.Month, 1);
+            var seisMesesAtras = hoy.AddMonths(-5);
+
             var gastos = await _context.Gastos
                 .Include(g => g.Usuario)
                 .Include(g => g.Rubro)
-                .Where(g => g.FechaGasto >= hoy.AddMonths(-3))
+                .Include(g => g.Detalle)
                 .ToListAsync();
 
-            var mesActual = hoy.Month;
-            var añoActual = hoy.Year;
-            var gastosDelMes = gastos.Where(g => g.FechaGasto.Month == mesActual && g.FechaGasto.Year == añoActual).ToList();
+            // 1. Filtrado por mes actual
+            var gastosMes = gastos.Where(g => g.FechaGasto >= primerDiaMesActual).ToList();
+            var gastosPesos = gastosMes.Where(g => g.Moneda == "AR$").ToList();
+            var gastosDolares = gastosMes.Where(g => g.Moneda == "USD").ToList();
 
-            var usuarios = gastosDelMes.Select(g => g.UsuarioId).Distinct().Count();
+            // 2. Totales
+            var totalMesPesos = gastosPesos.Sum(g => g.Importe);
+            var totalMesDolares = gastosDolares.Sum(g => g.Importe);
 
-            var model = new DashboardViewModel
+            // 3. Gastos por rubro (del mes)
+            var categoriasDelMes = gastosMes
+                .GroupBy(g => g.Rubro.NombreRubro)
+                .Select(gr => new CategoriaGastoViewModel
+                {
+                    Nombre = gr.Key,
+                    Total = gr.Sum(g => g.Importe)
+                }).ToList();
+
+            // 4. Tablas de detalle
+            var detallePesos = gastosPesos.Select(g => new GastoDetalleViewModel
             {
-                TotalARS = gastosDelMes.Where(g => g.Moneda == "AR$").Sum(g => g.Importe),
-                TotalUSD = gastosDelMes.Where(g => g.Moneda == "USD").Sum(g => g.Importe),
-                TotalGastos = gastosDelMes.Count,
-                PromedioPorEmpleado = usuarios > 0 ? gastosDelMes.Sum(g => g.Importe) / usuarios : 0,
-                GastoMaximo = gastosDelMes.Any() ? gastosDelMes.Max(g => g.Importe) : 0,
-                GastosUltimosTresMeses = gastos
-                    .GroupBy(g => new { g.FechaGasto.Month, g.FechaGasto.Year })
-                    .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
-                    .Select(g => new GastosPorMesDTO
-                    {
-                        Mes = $"{g.Key.Month}/{g.Key.Year}",
-                        TotalARS = g.Where(x => x.Moneda == "AR$").Sum(x => x.Importe),
-                        TotalUSD = g.Where(x => x.Moneda == "USD").Sum(x => x.Importe)
-                    }).ToList(),
+                Usuario = g.Usuario.NombreUsuario,
+                Rubro = g.Rubro.NombreRubro,
+                Detalle = g.Detalle.NombreDetalle,
+                Monto = g.Importe,
+                Fecha = g.FechaGasto
+            }).ToList();
 
-                RubrosMasUsados = gastosDelMes
-                    .GroupBy(g => g.Rubro.NombreRubro)
-                    .Select(g => new RubroPorcentajeDTO
-                    {
-                        Rubro = g.Key,
-                        Porcentaje = Math.Round((decimal)g.Count() * 100 / gastosDelMes.Count, 1)
-                    }).ToList(),
+            var detalleDolares = gastosDolares.Select(g => new GastoDetalleViewModel
+            {
+                Usuario = g.Usuario.NombreUsuario,
+                Rubro = g.Rubro.NombreRubro,
+                Detalle = g.Detalle.NombreDetalle,
+                Monto = g.Importe,
+                Fecha = g.FechaGasto
+            }).ToList();
 
-                GastosPorUsuario = gastosDelMes
-                    .GroupBy(g => g.Usuario.NombreUsuario)
-                    .Select(g => new UsuarioGastoDTO
-                    {
-                        Usuario = g.Key,
-                        Total = g.Sum(x => x.Importe)
-                    }).ToList()
+            // 5. Comparativa últimos 6 meses
+            var gastosUltimos6Meses = gastos.Where(g => g.FechaGasto >= new DateTime(seisMesesAtras.Year, seisMesesAtras.Month, 1));
+            var comparativa = gastosUltimos6Meses
+                .GroupBy(g => new { g.FechaGasto.Year, g.FechaGasto.Month })
+                .OrderBy(gr => gr.Key.Year).ThenBy(gr => gr.Key.Month)
+                .Select(gr => new ComparativaMensualViewModel
+                {
+                    Mes = $"{CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(gr.Key.Month)} {gr.Key.Year}",
+                    TotalPesos = gr.Where(g => g.Moneda == "AR$").Sum(g => g.Importe),
+                    TotalDolares = gr.Where(g => g.Moneda == "USD").Sum(g => g.Importe)
+                }).ToList();
+
+            var vm = new DashboardViewModel
+            {
+                TotalMesPesos = totalMesPesos,
+                TotalMesDolares = totalMesDolares,
+                CategoriasDelMes = categoriasDelMes,
+                GastosPesos = detallePesos,
+                GastosDolares = detalleDolares,
+                Comparativa6Meses = comparativa
             };
 
-            return View(model);
+            return View(vm);
         }
 
         public IActionResult ExportarPDF()

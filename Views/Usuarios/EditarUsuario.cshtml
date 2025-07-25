@@ -1,42 +1,41 @@
 ﻿@model GestorDeGastos.Models.Usuario
 
 @{
-    ViewData["Title"] = "EditarUsuario";
+    ViewData["Title"] = "Editar Usuario";
 }
 
-<h1>Edit</h1>
+<h1>Editar Usuario</h1>
 
-<h4>Usuario</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="EditarUsuario">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <label asp-for="NombreUsuario" class="control-label"></label>
-                <input asp-for="NombreUsuario" class="form-control" />
+                <label asp-for="NombreUsuario" class="control-label">Nombre de Usuario</label>
+                <input asp-for="NombreUsuario" class="form-control" readonly />
                 <span asp-validation-for="NombreUsuario" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Contraseña" class="control-label"></label>
-                <input asp-for="Contraseña" class="form-control" />
+                <label asp-for="Contraseña" class="control-label">Nueva contraseña</label>
+                <input asp-for="Contraseña" type="password" class="form-control" />
                 <span asp-validation-for="Contraseña" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="RolId" class="control-label"></label>
+                <label asp-for="RolId" class="control-label">Rol</label>
                 <select asp-for="RolId" class="form-control" asp-items="ViewBag.RolId"></select>
                 <span asp-validation-for="RolId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Editar" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="ListadoUsuarios">Cancelar</a>
 </div>
 
 @section Scripts {

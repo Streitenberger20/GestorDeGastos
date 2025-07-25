@@ -1,13 +1,14 @@
 ﻿namespace GestorDeGastos.Models
 {
-    public class Descripcion
+    public class Detalle
     {
         public int Id { get; set; }
-        public string NombreDescripcion { get; set; }
+        public string NombreDetalle { get; set; }
 
         public int RubroId { get; set; }
         public Rubro Rubro { get; set; }
 
-        public Descripcion() { }
+        public Detalle() { }
     }
 }
+

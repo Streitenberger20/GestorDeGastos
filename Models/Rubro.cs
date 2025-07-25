@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public string NombreRubro { get; set; }
 
-        public ICollection<Descripcion> Descripciones { get; set; }
+        public ICollection<Detalle> Detalles { get; set; }
         public ICollection<Gasto> Gastos { get; set; }
         public ICollection<RolRubro> RolRubros { get; set; }
 

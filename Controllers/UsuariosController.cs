@@ -26,25 +26,7 @@ namespace GestorDeGastos.Controllers
             return View(await appDbContext.ToListAsync());
         }
 
-        // GET: Usuarios/DetallesUsuario/5
-        public async Task<IActionResult> DetallesUsuario(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var usuario = await _context.Usuarios
-                .Include(u => u.Rol)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (usuario == null)
-            {
-                return NotFound();
-            }
-
-            return View(usuario);
-        }
-
+       
         // GET: Usuarios/Create
         public IActionResult CrearUsuario()
         {
@@ -77,7 +59,7 @@ namespace GestorDeGastos.Controllers
             {
                 return NotFound();
             }
-            ViewData["RolId"] = new SelectList(_context.Roles, "Id", "Id", usuario.RolId);
+            ViewData["RolId"] = new SelectList(_context.Roles, "Id", "NombreRol", usuario.RolId);
             return View(usuario);
         }
 
@@ -93,31 +75,14 @@ namespace GestorDeGastos.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(usuario);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!UsuarioExists(usuario.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(ListadoUsuarios));
-            }
-            ViewData["RolId"] = new SelectList(_context.Roles, "Id", "Id", usuario.RolId);
-            return View(usuario);
+               _context.Update(usuario);
+               await _context.SaveChangesAsync();
+
+               return RedirectToAction(nameof(ListadoUsuarios));
+
         }
 
-        // GET: Usuarios/Delete/5
+      /*  // GET: Usuarios/Delete/5
         public async Task<IActionResult> EliminarUsuario(int? id)
         {
             if (id == null)
@@ -149,7 +114,7 @@ namespace GestorDeGastos.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(ListadoUsuarios));
-        }
+        }*/
 
         private bool UsuarioExists(int id)
         {

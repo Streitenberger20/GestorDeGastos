@@ -33,8 +33,8 @@
     </div>
 
     <div class="form-group">
-        <label>Descripción</label>
-        <select id="DescripcionId" name="DescripcionId" class="form-control">
+        <label>Detalle</label>
+        <select id="DetalleId" name="DetalleId" class="form-control">
             <option value="">-- Seleccione un rubro primero --</option>
         </select>
     </div>
@@ -47,17 +47,17 @@
         document.getElementById("RubroId").addEventListener("change", function () {
             var rubroId = this.value;
 
-            fetch('/Gastos/ObtenerDescripciones?rubroId=' + rubroId)
+            fetch('/Gastos/ObtenerDetalles?rubroId=' + rubroId)
                 .then(response => response.json())
                 .then(data => {
-                    var descripcionSelect = document.getElementById("DescripcionId");
-                    descripcionSelect.innerHTML = "";
+                    var detalleSelect = document.getElementById("DetalleId");
+                    detalleSelect.innerHTML = "";
 
                     data.forEach(function (item) {
                         var option = document.createElement("option");
                         option.value = item.id;
-                        option.text = item.nombreDescripcion;
-                        descripcionSelect.appendChild(option);
+                        option.text = item.nombreDetalle;
+                        detalleSelect.appendChild(option);
                     });
                 });
         });

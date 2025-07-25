@@ -11,7 +11,7 @@ namespace GestorDeGastos.Data
         public DbSet<Rol> Roles { get; set; }
         public DbSet<Gasto> Gastos { get; set; }
         public DbSet<Rubro> Rubros { get; set; }
-        public DbSet<Descripcion> Descripciones { get; set; }
+        public DbSet<Detalle> Detalles { get; set; }
         public DbSet<RolRubro> RolRubros { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -34,7 +34,7 @@ namespace GestorDeGastos.Data
 
             // Rubro → Descripciones
             modelBuilder.Entity<Rubro>()
-                .HasMany(r => r.Descripciones)
+                .HasMany(r => r.Detalles)
                 .WithOne(d => d.Rubro)
                 .HasForeignKey(d => d.RubroId)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -49,15 +49,15 @@ namespace GestorDeGastos.Data
             // Gasto → Rubro
             modelBuilder.Entity<Gasto>()
                 .HasOne(g => g.Rubro)
-                .WithMany(r => r.Gastos) // 👈 Ahora sí apuntamos a la propiedad real
+                .WithMany(r => r.Gastos) 
                 .HasForeignKey(g => g.RubroId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Gasto → Descripcion
             modelBuilder.Entity<Gasto>()
-                .HasOne(g => g.Descripcion)
+                .HasOne(g => g.Detalle)
                 .WithMany()
-                .HasForeignKey(g => g.DescripcionId)
+                .HasForeignKey(g => g.DetalleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Precisión del campo decimal

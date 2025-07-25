@@ -3,6 +3,7 @@ using GestorDeGastos.Models;
 using GestorDeGastos.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace GestorDeGastos.Controllers
 {
@@ -65,6 +66,18 @@ namespace GestorDeGastos.Controllers
             _context.SaveChanges();
 
             return RedirectToAction("ListadoRubros");
+        }
+
+        [HttpGet]
+        public IActionResult DetallesRubro(int id)
+        {
+
+            Rubro rubro = _context.Rubros
+                .Include(r => r.Detalles)
+                .FirstOrDefault(r => r.Id == id);
+
+            return View(rubro);
+
         }
     }
 }
