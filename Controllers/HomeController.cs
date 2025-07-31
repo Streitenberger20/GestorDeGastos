@@ -43,7 +43,8 @@ namespace GestorDeGastos.Controllers
                 .Select(gr => new CategoriaGastoViewModel
                 {
                     Nombre = gr.Key,
-                    Total = gr.Sum(g => g.Importe)
+                    TotalPesos = gr.Where(f => f.Moneda == "AR$").Sum(g => g.Importe),
+                    TotalDolares = gr.Where(f => f.Moneda == "USD").Sum(g => g.Importe)
                 }).ToList();
 
             // 4. Tablas de detalle

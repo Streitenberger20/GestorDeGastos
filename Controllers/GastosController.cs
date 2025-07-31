@@ -1,5 +1,7 @@
-﻿using GestorDeGastos.Data;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using GestorDeGastos.Data;
 using GestorDeGastos.Models;
+using GestorDeGastos.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -29,12 +31,12 @@ namespace GestorDeGastos.Controllers
             var rubros = rol.RolRubros.Select(rr => rr.Rubro).ToList();
             ViewBag.Rubros = new SelectList(rubros, "Id", "NombreRubro");
 
-            Gasto gasto = new Gasto
+            GastoViewModel gastoVM = new GastoViewModel
             {
-                FechaGasto = DateTime.Now,
+                Importe = null,
             };
 
-            return View(gasto);
+            return View(gastoVM);
         }
 
         [HttpGet]
@@ -49,11 +51,9 @@ namespace GestorDeGastos.Controllers
         }
 
         [HttpPost]
-        public IActionResult RegistrarGasto(Gasto gasto)
+        public IActionResult RegistrarGasto(GastoViewModel gastoVM)
         {
 
-            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value ?? "0");
-            gasto.UsuarioId = usuarioId;
 
             if (!ModelState.IsValid)
             {
@@ -64,8 +64,19 @@ namespace GestorDeGastos.Controllers
                 .FirstOrDefault(r => r.NombreRol == rolNombre);
                 var rubros = rol.RolRubros.Select(rr => rr.Rubro).ToList();
                 ViewBag.Rubros = new SelectList(rubros, "Id", "NombreRubro");
-                return View(gasto);
+                return View(gastoVM);
             }
+            var gasto = new Gasto
+            {
+                FechaGasto = gastoVM.FechaGasto,
+                Importe = gastoVM.Importe.Value,
+                Moneda = gastoVM.Moneda,
+                DetalleId = gastoVM.DetalleId,
+                RubroId = gastoVM.RubroId
+            };
+
+            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value ?? "0");
+            gasto.UsuarioId = usuarioId;
 
             _context.Gastos.Add(gasto);
             _context.SaveChanges();

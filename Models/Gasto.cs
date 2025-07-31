@@ -23,11 +23,13 @@ namespace GestorDeGastos.Models
         [ValidateNever]
         public Usuario Usuario { get; set; }
 
+        [Range(0, int.MaxValue, ErrorMessage = "Debe seleccionar un rubro.")]
         public int RubroId { get; set; }
+
         [ValidateNever]
         public Rubro Rubro { get; set; }
 
-
+        [Range(0, int.MaxValue, ErrorMessage = "Debe seleccionar un rubro.")]
         public int DetalleId { get; set; }
         [ValidateNever]
         public Detalle Detalle { get; set; }

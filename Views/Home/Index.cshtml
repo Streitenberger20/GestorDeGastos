@@ -1,7 +1,7 @@
 ﻿@model GestorDeGastos.ViewModels.DashboardViewModel
 @using System.Globalization
 @{
-    ViewData["Title"] = "Dashboard Jefe";
+    ViewData["Title"] = "Dashboard";
 }
 
 <div class="container mt-4">
@@ -27,17 +27,37 @@
         </div>
     </div>
 
-    <!-- Gráfico de rubros -->
+    <!-- Gráfico de rubros pesos -->
     <div class="row mb-5">
         <div class="col-md-6">
-            <h5>📁 Distribución por Rubros (Mes Actual)</h5>
-            <canvas id="graficoRubros"></canvas>
+            <div style="width: 400px; height: 400px;">
+            <h5>📁 Distribución por Rubros (Pesos)</h5>
+            <canvas id="graficoRubrosPesos"></canvas>
+            </div>
         </div>
 
-        <!-- Comparativa 6 meses -->
+        <!-- Gráfico de rubros USD -->
+
         <div class="col-md-6">
-            <h5>📈 Comparativa AR$ vs USD - Últimos 6 meses</h5>
-            <canvas id="graficoComparativa"></canvas>
+            <div style="width: 400px; height: 400px;">
+            <h5>📁 Distribución por Rubros (Dolares)</h5>
+            <canvas id="graficoRubrosDolares"></canvas>
+            </div>
+        </div>
+
+    </div>
+    <div class="row mb-5">
+
+        <!-- Comparativa 6 meses pesos -->
+        <div class="col-md-6">
+            <h5>📈 Comparativa AR$ - Últimos 6 meses</h5>
+            <canvas id="graficoComparativaPesos"></canvas>
+        </div>
+
+        <!-- Comparativa 6 meses dolares -->
+        <div class="col-md-6">
+            <h5>📈 Comparativa AR$ - Últimos 6 meses</h5>
+            <canvas id="graficoComparativaDolares"></canvas>
         </div>
     </div>
 
@@ -105,23 +125,76 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Gráfico de Rubros
-        const ctxRubros = document.getElementById('graficoRubros').getContext('2d');
-        const chartRubros = new Chart(ctxRubros, {
-            type: 'pie',
-            data: {
-                labels: @Html.Raw(Json.Serialize(Model.CategoriasDelMes.Select(c => c.Nombre))),
-                datasets: [{
-                    label: 'Total por rubro',
-                    data: @Html.Raw(Json.Serialize(Model.CategoriasDelMes.Select(c => c.Total))),
-                    backgroundColor: ['#007bff', '#28a745', '#ffc107', '#17a2b8', '#dc3545', '#6c757d']
-                }]
+        // Gráfico de Rubros Pesos
+
+        const rubrosPesosLabels = @Html.Raw(Json.Serialize(
+                    Model.CategoriasDelMes
+                            .Where(c => c.TotalPesos != 0)
+                            .Select(c => c.Nombre)
+            ));
+
+        const rubrosPesosData = @Html.Raw(Json.Serialize(
+                Model.CategoriasDelMes
+                        .Where(c => c.TotalPesos != 0)
+                        .Select(c => c.TotalPesos)
+        ));
+
+        const ctxRubrosPesos = document.getElementById('graficoRubrosPesos').getContext('2d');
+        const chartRubrosPesos = new Chart(ctxRubrosPesos, {
+        type: 'pie',
+        data: {
+            labels: rubrosPesosLabels,
+            datasets: [{
+                label: 'Total por rubro (AR$)',
+                data: rubrosPesosData,
+                backgroundColor: ['#007bff', '#28a745', '#ffc107', '#17a2b8', '#dc3545', '#6c757d']
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
             }
-        });
+        }
+    });
+
+        // Gráfico de Rubros Dolares
+        const rubrosDolaresLabels = @Html.Raw(Json.Serialize(
+                Model.CategoriasDelMes
+                        .Where(c => c.TotalDolares != 0)
+                        .Select(c => c.Nombre)
+        ));
+
+        const rubrosDolaresData = @Html.Raw(Json.Serialize(
+                Model.CategoriasDelMes
+                        .Where(c => c.TotalDolares != 0)
+                        .Select(c => c.TotalDolares)
+        ));
+
+        const ctxRubrosDolares = document.getElementById('graficoRubrosDolares').getContext('2d');
+        const chartRubrosDolares = new Chart(ctxRubrosDolares, {
+        type: 'pie',
+        data: {
+            labels: rubrosDolaresLabels,
+            datasets: [{
+                label: 'Total por rubro (USD)',
+                data: rubrosDolaresData,
+                backgroundColor: ['#007bff', '#28a745', '#ffc107', '#17a2b8', '#dc3545', '#6c757d']
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
 
         // Comparativa 6 meses
-        const ctxComparativa = document.getElementById('graficoComparativa').getContext('2d');
-        const chartComparativa = new Chart(ctxComparativa, {
+        const ctxComparativaPesos = document.getElementById('graficoComparativaPesos').getContext('2d');
+        const chartComparativaPesos = new Chart(ctxComparativaPesos, {
             type: 'bar',
             data: {
                 labels: @Html.Raw(Json.Serialize(Model.Comparativa6Meses.Select(m => m.Mes))),
@@ -130,8 +203,27 @@
                         label: 'Pesos (AR$)',
                         backgroundColor: '#28a745',
                         data: @Html.Raw(Json.Serialize(Model.Comparativa6Meses.Select(m => m.TotalPesos)))
-                    },
-                    {
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+
+
+                const ctxComparativaDolares = document.getElementById('graficoComparativaDolares').getContext('2d');
+        const chartComparativaDolares = new Chart(ctxComparativaDolares, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.Comparativa6Meses.Select(m => m.Mes))),
+                datasets: [
+                            {
                         label: 'Dólares (USD)',
                         backgroundColor: '#17a2b8',
                         data: @Html.Raw(Json.Serialize(Model.Comparativa6Meses.Select(m => m.TotalDolares)))
@@ -146,5 +238,6 @@
                 }
             }
         });
+
     </script>
 }

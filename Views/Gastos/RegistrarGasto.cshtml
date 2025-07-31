@@ -1,8 +1,8 @@
-﻿@model Gasto
+﻿@model GestorDeGastos.ViewModels.GastoViewModel
 
 <h2>Nuevo Gasto</h2>
 
-<form asp-action="RegistrarGasto" method="post">
+<form id="registrarGasto" asp-controller="Gastos" asp-action="RegistrarGasto" method="post">
     <div class="form-group">
         <label>Fecha</label>
         <input asp-for="FechaGasto" type="date" class="form-control" />
@@ -11,6 +11,7 @@
     <div class="form-group">
         <label>Importe</label>
         <input asp-for="Importe" class="form-control" />
+        <span asp-validation-for="Importe" class="text-danger"></span>
     </div>
 
     <div class="form-group">
@@ -19,31 +20,57 @@
             <option value="AR$">AR$</option>
             <option value="USD">USD</option>
         </select>
+        <span asp-validation-for="Moneda" class="text-danger"></span>
     </div>
+
 
     <div class="form-group">
         <label>Rubro</label>
         <select id="RubroId" name="RubroId" class="form-control">
-            <option value="">-- Seleccione --</option>
+
+
             @foreach (var item in ViewBag.Rubros as SelectList)
             {
                 <option value="@item.Value">@item.Text</option>
             }
         </select>
+        <span asp-validation-for="RubroId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label>Detalle</label>
         <select id="DetalleId" name="DetalleId" class="form-control">
-            <option value="">-- Seleccione un rubro primero --</option>
+
         </select>
+        <span asp-validation-for="DetalleId" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="button" class="btn btn-primary" onclick="mostrarConfirmacion()">Guardar</button>
 </form>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar gasto</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro que desea registrar este gasto con los datos ingresados?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="enviarFormulario()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
+
         document.getElementById("RubroId").addEventListener("change", function () {
             var rubroId = this.value;
 
@@ -61,5 +88,14 @@
                     });
                 });
         });
+
+        function mostrarConfirmacion() {
+           const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+           modal.show();
+        }
+
+        function enviarFormulario() {
+            document.getElementById('registrarGasto').submit();
+        }
     </script>
 }
