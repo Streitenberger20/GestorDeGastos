@@ -1,62 +1,74 @@
 ﻿@model GestorDeGastos.ViewModels.EditarRubroViewModel
 
-<h2>Editar Rubro</h2>
+<h1>Editar Rubro</h1>
 
-<form asp-action="Editar" method="post">
+<hr/>
 
-    <input type="hidden" asp-for="Id" />
+<div class="row d-flex justify-content-center align-items-center">
+    <div class="col-md-8">
+        <form asp-action="EditarRubro" method="post">
 
-    <div>
-        <label>Nombre Rubro</label>
-        <input asp-for="NombreRubro" />
-    </div>
+            <input type="hidden" asp-for="Id" />
 
-    <h3>Detalles</h3>
+            <divclass ="form-group mb-3">
+                <label class="control-label">Nombre Rubro</label>
+                <input asp-for="NombreRubro" class="form-control" />
+            </divclass>
 
-    <table id="tablaDetalles" border="1" style="border-collapse: collapse; width: 100%;">
-        <thead>
-            <tr>
-                <th>Descripción</th>
-                <th>Acción</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < Model.Detalles.Count; i++)
-            {
-                <tr>
-                    <td>
-                        <input type="hidden" name="Detalles[@i].Id" value="@Model.Detalles[i].Id" />
-                        <input type="text" name="Detalles[@i].Descripcion" value="@Model.Detalles[i].Descripcion" style="width: 100%;" />
-                    </td>
-                    <td style="text-align:center;">
-                        <button type="button" class="btnEliminarDetalle">Eliminar</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            <h3>Detalles</h3>
 
-    <div style="margin-top: 10px;">
-        <input type="text" id="nuevoDetalleDescripcion" placeholder="Nueva descripción" style="width: 80%;" />
-        <button type="button" id="btnAgregarDetalle">Agregar Detalle</button>
-    </div>
+            <table id="tablaDetalles" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Detalles.Count; i++)
+                    {
+                    <tr>
+                        <td>
+                            <input type="hidden" name="Detalles[@i].Id" value="@Model.Detalles[i].Id" class="form-control" />
+                            <input type="text" name="Detalles[@i].Descripcion" value="@Model.Detalles[i].Descripcion" class="form-control" />
+                        </td>
+                        <td style="text-align:center;">
+                            <button type="button" class="btn btn-danger">Eliminar</button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
 
-    <h3>Roles asignados</h3>
-    <div>
-        @foreach (var rol in Model.RolesDisponibles)
-        {
-            var checkedAttr = Model.RolesSeleccionados.Contains(rol.Id) ? "checked" : "";
-            <label style="display:block; margin-bottom: 5px;">
-                <input type="checkbox" name="RolesSeleccionados" value="@rol.Id" @checkedAttr />
-                @rol.NombreRol
-            </label>
-        }
-    </div>
+            <div class="form-group mb-3">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <input type="text" id="nuevoDetalleDescripcion" placeholder="Nueva descripción" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" id="btnAgregarDetalle" class="btn btn-info">Agregar Detalle</button>
+                    </div>
+                </div>
+            </div>
 
-    <div style="margin-top: 15px;">
-        <button type="submit">Guardar Cambios</button>
-    </div>
-</form>
+            <h3>Roles asignados</h3>
+            <div>
+                @foreach (var rol in Model.RolesDisponibles)
+                {
+                var checkedAttr = Model.RolesSeleccionados.Contains(rol.Id) ? "checked" : "";
+                <label style="display:block; margin-bottom: 5px;">
+                    <input type="checkbox" name="RolesSeleccionados" value="@rol.Id" @checkedAttr />
+                    @rol.NombreRol
+                </label>
+                }
+            </div>
+
+            <div class="form-group d-flex justify-content-center align-items-center">
+                <input type="submit" value="Editar" class="btn btn-primary mb-3" />
+            </div>
+        </form>
+</div>
+</div>
 
 <script>
     // Función para eliminar una fila de detalle
