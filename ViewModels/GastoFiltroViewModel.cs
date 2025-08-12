@@ -22,6 +22,7 @@ namespace GestorDeGastos.ViewModels
 
         public decimal Total { get; set; }
 
+
         // Resultado
         public List<GastoDetalleViewModel> Resultados { get; set; } = new();
     }

@@ -69,8 +69,8 @@ namespace GestorDeGastos.Controllers
         public IActionResult Editar(int id)
         {
             var rubro = _context.Rubros
-                .Include(r => r.Detalles)
-                .Include(r => r.RolRubros)
+                .Include(r => r.Detalles.Where(d => d.esActivo))
+                .Include(r => r.RolRubros.Where(rr => rr.EsActivo))
                 .ThenInclude(rr => rr.Rol)
                 .FirstOrDefault(r => r.Id == id);
 
@@ -180,6 +180,7 @@ namespace GestorDeGastos.Controllers
                 }
             }
 
+            
             _context.SaveChanges();
 
             return RedirectToAction("ListadoRubros");

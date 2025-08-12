@@ -57,26 +57,33 @@
         <p>Total: @Model.Moneda @Model.Total</p>
 
         <table class="table table-bordered table-sm">
-            <thead class="table-light">
+            <thead>
                 <tr>
+                    <th>N°</th>
                     <th>Fecha</th>
                     <th>Usuario</th>
+                    <th>Moneda</th>
+                    <th>Importe</th>
                     <th>Rubro</th>
                     <th>Detalle</th>
-                    <th>Monto</th>
-                    <th>Moneda</th>
+                    <th>Comentario</th>
+
                 </tr>
             </thead>
             <tbody>
                 @foreach (var g in Model.Resultados)
                 {
-                    <tr>
+                    <tr class="@((!g.EsActivo) ? "table-danger" : (g.Monto < 0) ? "table-warning" : "")">
+                        <td>@g.NumeroGasto</td>  
                         <td>@g.Fecha.ToShortDateString()</td>
                         <td>@g.Usuario</td>
+                        <td>@g.Moneda</td>
+                        <td>@g.Monto.ToString("N2")</td>
                         <td>@g.Rubro</td>
                         <td>@g.Detalle</td>
-                        <td>@g.Monto.ToString("N2")</td>
-                        <td>@g.Moneda</td>
+                        <td>@g.Comentario</td>
+                        
+                        
                     </tr>
                 }
             </tbody>

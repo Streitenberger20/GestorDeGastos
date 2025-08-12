@@ -25,7 +25,7 @@ namespace GestorDeGastos.Controllers
             var rolNombre = User.FindFirst(ClaimTypes.Role)?.Value;
 
             var rol = _context.Roles
-                .Include(r => r.RolRubros)
+                .Include(r => r.RolRubros.Where(rr => rr.EsActivo))
                     .ThenInclude(rr => rr.Rubro)
                     .ThenInclude(r => r.Detalles)
                 .FirstOrDefault(r => r.NombreRol == rolNombre);
@@ -41,7 +41,7 @@ namespace GestorDeGastos.Controllers
             ViewBag.Rubros = new SelectList(rubros, "Id", "NombreRubro", primerRubroId);
             ViewBag.Detalles = new SelectList(detalles, "Id", "NombreDetalle");
             ViewBag.UltimosGastos = _context.Gastos
-                .Where(g => g.UsuarioId == int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value ?? "0" ) && g.esActivo)
+                .Where(g => g.UsuarioId == int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value ?? "0" ) && g.esActivo && g.Importe>0)
                 .Include(g => g.Rubro)
                 .Include(g => g.Detalle)
                 .OrderByDescending(g => g.Id)
@@ -77,13 +77,13 @@ namespace GestorDeGastos.Controllers
             {
                 var rolNombre = User.FindFirst(ClaimTypes.Role)?.Value;
                 var rol = _context.Roles
-                .Include(r => r.RolRubros)
+                .Include(r => r.RolRubros.Where(rr => rr.EsActivo))
                 .ThenInclude(rr => rr.Rubro)
                 .FirstOrDefault(r => r.NombreRol == rolNombre);
-                var rubros = rol.RolRubros.Select(rr => rr.Rubro).ToList();
+                var rubros = rol.RolRubros.Select(rr => rr.Rubro).Where(rr => rr.Detalles.Count != 0 && rr.esActivo).ToList();
                 ViewBag.Rubros = new SelectList(rubros, "Id", "NombreRubro");
                 ViewBag.UltimosGastos = _context.Gastos
-                .Where(g => g.UsuarioId == usuarioId && g.esActivo)
+                .Where(g => g.UsuarioId == usuarioId && g.esActivo && g.Importe>0)
                 .Include(g => g.Rubro)
                 .Include(g => g.Detalle)
                 .OrderByDescending(g => g.Id)
@@ -99,7 +99,8 @@ namespace GestorDeGastos.Controllers
                 Importe = gastoVM.Importe.Value,
                 Moneda = gastoVM.Moneda,
                 DetalleId = gastoVM.DetalleId,
-                RubroId = gastoVM.RubroId
+                RubroId = gastoVM.RubroId,
+                Comentario = gastoVM.Comentario,
             };
 
             _context.Gastos.Add(gasto);
@@ -114,6 +115,21 @@ namespace GestorDeGastos.Controllers
             var gasto = _context.Gastos.Find(id);
             if (gasto == null) return NotFound();
             gasto.esActivo = false;
+            gasto.Comentario = "Gasto eliminado";
+
+            var credito = new Gasto
+            {
+                UsuarioId = gasto.UsuarioId,
+                FechaGasto = gasto.FechaGasto,
+                Importe = -gasto.Importe,
+                Moneda = gasto.Moneda,
+                DetalleId = gasto.DetalleId,
+                RubroId = gasto.RubroId,
+                Comentario = "Credito eliminación de gasto: " + gasto.Id,
+            };
+
+            _context.Gastos.Add(credito);
+
             _context.SaveChanges();
             return RedirectToAction("RegistrarGasto");
         }

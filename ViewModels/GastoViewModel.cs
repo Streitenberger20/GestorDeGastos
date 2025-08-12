@@ -23,6 +23,8 @@ namespace GestorDeGastos.ViewModels
         [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un detalle.")]
         public int DetalleId { get; set; }
 
+        public string? Comentario { get; set; }
+
 
         public GastoViewModel() { }
 

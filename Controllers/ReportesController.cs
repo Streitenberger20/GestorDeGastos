@@ -37,12 +37,15 @@ namespace GestorDeGastos.Controllers
             var resultados = await query.OrderByDescending(g => g.FechaGasto)
                 .Select(g => new GastoDetalleViewModel
                 {
+                    NumeroGasto = g.Id,
+                    EsActivo = g.esActivo,
                     Fecha = g.FechaGasto,
                     Usuario = g.Usuario.NombreUsuario,
                     Rubro = g.Rubro.NombreRubro,
                     Detalle = g.Detalle.NombreDetalle,
                     Monto = g.Importe,
-                    Moneda = g.Moneda
+                    Moneda = g.Moneda,
+                    Comentario = g.Comentario
                 })
                 .ToListAsync();
 

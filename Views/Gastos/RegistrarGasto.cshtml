@@ -1,6 +1,8 @@
 ﻿@model GestorDeGastos.ViewModels.GastoViewModel
 
-<h2>Nuevo Gasto</h2>
+<h1>Gastos</h1>
+
+<hr/>
 
 <div class="row">
   <div class="col">
@@ -41,6 +43,12 @@
         <span asp-validation-for="DetalleId" class="text-danger"></span>
     </div>
 
+     <div class="form-group">
+        <label>Comentario</label>
+        <textarea asp-for="Comentario" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Comentario" class="text-danger"></span>
+     </div>
+
     <button type="button" class="btn btn-primary" onclick="mostrarConfirmacion()">Guardar</button>
 </form>
 </div>
@@ -61,7 +69,7 @@
             <tbody>
                 @foreach (var gasto in ViewBag.UltimosGastos)
                 {
-                    <tr>
+                    <tr class="align-middle">
                         <td>@gasto.FechaGasto.ToShortDateString()</td>
                         <td>@gasto.Importe.ToString("N2")</td>
                         <td>@gasto.Moneda</td>
