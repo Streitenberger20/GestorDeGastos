@@ -14,6 +14,14 @@ namespace GestorDeGastos.ViewModels
         public List<Usuario> Usuarios { get; set; } = new();
         public List<Rubro> Rubros { get; set; } = new();
 
+        public String Moneda { get; set; }
+        public List<String> Monedas { get; set; } = new()
+        {
+            "AR$", "USD"
+        };
+
+        public decimal Total { get; set; }
+
         // Resultado
         public List<GastoDetalleViewModel> Resultados { get; set; } = new();
     }

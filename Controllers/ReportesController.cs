@@ -14,19 +14,19 @@ namespace GestorDeGastos.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> ListadoGastos(DateTime? fechaDesde, DateTime? fechaHasta, int? usuarioId, int? rubroId)
+        [HttpGet]
+        public async Task<IActionResult> ListadoGastos(DateTime? fechaDesde, DateTime? fechaHasta, int? usuarioId, int? rubroId, string moneda)
         {
+
+
             var query = _context.Gastos
                 .Include(g => g.Usuario)
                 .Include(g => g.Rubro)
                 .Include(g => g.Detalle)
                 .AsQueryable();
 
-            if (fechaDesde.HasValue)
-                query = query.Where(g => g.FechaGasto >= fechaDesde.Value);
-
-            if (fechaHasta.HasValue)
-                query = query.Where(g => g.FechaGasto <= fechaHasta.Value);
+            // Aplicar filtros
+            query = query.Where(g => g.FechaGasto >= fechaDesde && g.FechaGasto <= fechaHasta && g.Moneda == moneda);
 
             if (usuarioId.HasValue)
                 query = query.Where(g => g.UsuarioId == usuarioId.Value);
@@ -34,8 +34,7 @@ namespace GestorDeGastos.Controllers
             if (rubroId.HasValue)
                 query = query.Where(g => g.RubroId == rubroId.Value);
 
-            var resultados = await query
-                .OrderByDescending(g => g.FechaGasto)
+            var resultados = await query.OrderByDescending(g => g.FechaGasto)
                 .Select(g => new GastoDetalleViewModel
                 {
                     Fecha = g.FechaGasto,
@@ -55,14 +54,16 @@ namespace GestorDeGastos.Controllers
                 RubroId = rubroId,
                 Usuarios = await _context.Usuarios.ToListAsync(),
                 Rubros = await _context.Rubros.ToListAsync(),
-                Resultados = resultados
+                Resultados = resultados,
+                Total = resultados.Sum(r => r.Monto),
+                Moneda = moneda
             };
 
             return View(vm);
         }
 
         [HttpGet]
-        public async Task<IActionResult> ExportarExcel(DateTime? fechaDesde, DateTime? fechaHasta, int? usuarioId, int? rubroId)
+        public async Task<IActionResult> ExportarExcel(DateTime? fechaDesde, DateTime? fechaHasta, int? usuarioId, int? rubroId, string moneda)
         {
             var query = _context.Gastos
                 .Include(g => g.Usuario)
@@ -81,6 +82,9 @@ namespace GestorDeGastos.Controllers
 
             if (rubroId.HasValue)
                 query = query.Where(g => g.RubroId == rubroId.Value);
+
+            if (!string.IsNullOrEmpty(moneda))
+                query = query.Where(g => g.Moneda == moneda);
 
             var lista = await query
                 .OrderByDescending(g => g.FechaGasto)

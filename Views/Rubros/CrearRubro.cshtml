@@ -1,24 +1,46 @@
-﻿@model GestorDeGastos.ViewModels.RubroViewModel
+﻿@model GestorDeGastos.ViewModels.CrearRubroViewModel
 
 <h2>Crear Rubro</h2>
 
-<form asp-action="CrearRubro" method="post">
-    <div class="form-group">
-        <label>Nombre del Rubro</label>
-        <input asp-for="NombreRubro" class="form-control" />
+<form asp-action="Crear" method="post">
+
+    <div>
+        <label>Nombre Rubro</label>
+        <input asp-for="NombreRubro" />
     </div>
 
-    <div class="form-group">
-        <label>Asignar a Roles:</label>
-        @foreach (var rol in Model.RolesDisponibles)
-        {
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox"
-                       name="RolesSeleccionados" value="@rol.Value" id="rol_@rol.Value" />
-                <label class="form-check-label" for="rol_@rol.Value">@rol.Text</label>
-            </div>
-        }
+    <div>
+        <label>Detalles</label>
+        <div id="contenedorDetalles">
+            <input name="DetallesDescripcion" />
+        </div>
+        <button type="button" id="btnAgregarDetalle">Agregar detalle</button>
     </div>
 
-    <button type="submit" class="btn btn-primary">Guardar</button>
+    <div>
+        <label>Roles que pueden ver este Rubro</label>
+        <div>
+            @foreach (var rol in ViewBag.Roles)
+            {
+                <label>
+                    <input type="checkbox" name="RolesSeleccionados" value="@rol.Id" />
+                    @rol.NombreRol
+                </label>
+            
+                <br />
+            }
+        </div>
+    </div>
+
+    <button type="submit">Crear Rubro</button>
+
 </form>
+
+<script>
+    document.getElementById('btnAgregarDetalle').addEventListener('click', function() {
+        var contenedor = document.getElementById('contenedorDetalles');
+        var input = document.createElement('input');
+        input.name = 'DetallesDescripcion';
+        contenedor.appendChild(input);
+    });
+</script>

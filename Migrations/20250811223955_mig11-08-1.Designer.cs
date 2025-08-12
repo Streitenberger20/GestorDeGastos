@@ -4,6 +4,7 @@ using GestorDeGastos.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestorDeGastos.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250811223955_mig11-08-1")]
+    partial class mig11081
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,9 +39,6 @@ namespace GestorDeGastos.Migrations
 
                     b.Property<int>("RubroId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("esActivo")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -76,9 +76,6 @@ namespace GestorDeGastos.Migrations
                     b.Property<int>("UsuarioId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("esActivo")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
 
                     b.HasIndex("DetalleId");
@@ -102,9 +99,6 @@ namespace GestorDeGastos.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("esActivo")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
@@ -117,9 +111,6 @@ namespace GestorDeGastos.Migrations
 
                     b.Property<int>("RubroId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("EsActivo")
-                        .HasColumnType("bit");
 
                     b.HasKey("RolId", "RubroId");
 
@@ -139,9 +130,6 @@ namespace GestorDeGastos.Migrations
                     b.Property<string>("NombreRubro")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("esActivo")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

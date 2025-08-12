@@ -34,6 +34,8 @@ namespace GestorDeGastos.Models
         [ValidateNever]
         public Detalle Detalle { get; set; }
 
+        public bool esActivo { get; set; } = true;
+
         public Gasto() { }
     }
 }

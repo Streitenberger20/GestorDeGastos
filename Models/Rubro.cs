@@ -9,6 +9,8 @@
         public ICollection<Gasto> Gastos { get; set; }
         public ICollection<RolRubro> RolRubros { get; set; }
 
+        public bool esActivo { get; set; } = true;
+
         public Rubro() { }
     }
 }

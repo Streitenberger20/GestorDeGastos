@@ -38,7 +38,7 @@ namespace GestorDeGastos.Controllers
         public async Task<IActionResult> Login(string nombreUsuario, string contraseña)
         {
             var usuario = db.Usuarios.Include(u => u.Rol)
-                .FirstOrDefault(u => u.NombreUsuario == nombreUsuario && u.Contraseña == contraseña);
+                .FirstOrDefault(u => u.NombreUsuario == nombreUsuario && u.Contraseña == contraseña && u.esActivo);
 
             if (usuario != null)
             {

@@ -1,0 +1,41 @@
+﻿@model IEnumerable<GestorDeGastos.Models.Rol>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="CrearRol">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.NombreRol)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.esActivo)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.NombreRol)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.esActivo)
+            </td>
+            <td>
+                <a asp-action="EditarRol" asp-route-id="@item.Id">Editar</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+}

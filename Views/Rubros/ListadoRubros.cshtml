@@ -26,7 +26,8 @@
                     @Html.DisplayFor(modelItem => item.NombreRubro)
                 </td>
                 <td>
-                    <a asp-action="DetallesRubro" asp-route-id="@item.Id">Ver Detalles</a> 
+                    <a asp-action="DetallesRubro" asp-route-id="@item.Id">Ver Detalles</a>
+                    <a asp-action="Editar" asp-route-id="@item.Id">Editar</a>
                 </td>
             </tr>
         }

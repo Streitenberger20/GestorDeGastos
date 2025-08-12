@@ -8,6 +8,8 @@
         public int RubroId { get; set; }
         public Rubro Rubro { get; set; }
 
+        public bool EsActivo { get; set; } = true;
+
         public RolRubro() { }
     }
 }

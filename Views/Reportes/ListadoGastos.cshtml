@@ -4,14 +4,14 @@
     <h2>📋 Listado de Gastos</h2>
 
     <!-- Filtros -->
-    <form method="get" class="row mb-4">
+    <form method="get" class="row mb-4" id="formFiltros">
         <div class="col-md-3">
-            <label>Desde</label>
-            <input type="date" class="form-control" name="fechaDesde" value="@Model.FechaDesde?.ToString("yyyy-MM-dd")" />
+            <label>Desde <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" name="fechaDesde" value="@Model.FechaDesde?.ToString("yyyy-MM-dd")" required />
         </div>
         <div class="col-md-3">
-            <label>Hasta</label>
-            <input type="date" class="form-control" name="fechaHasta" value="@Model.FechaHasta?.ToString("yyyy-MM-dd")" />
+            <label>Hasta <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" name="fechaHasta" value="@Model.FechaHasta?.ToString("yyyy-MM-dd")" required />
         </div>
         <div class="col-md-3">
             <label>Usuario</label>
@@ -19,7 +19,18 @@
                 <option value="">-- Todos --</option>
                 @foreach (var u in Model.Usuarios)
                 {
-                    <option value="@u.Id">@u.NombreUsuario</option>
+                    <option value="@u.Id" selected="@(u.Id == Model.UsuarioId ? "selected" : null)">@u.NombreUsuario</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label>Moneda <span class="text-danger">*</span></label>
+            <select class="form-select" name="moneda" required>
+                <option value="">Seleccione</option>
+                @foreach (var m in Model.Monedas)
+                {
+                    <option value="@m" selected="@(m == Model.Moneda ? "selected" : null)">@m</option>
                 }
             </select>
         </div>
@@ -29,18 +40,22 @@
                 <option value="">-- Todos --</option>
                 @foreach (var r in Model.Rubros)
                 {
-                    <option value="@r.Id">@r.NombreRubro</option>
+                    <option value="@r.Id" selected="@(r.Id == Model.RubroId ? "selected" : null)">@r.NombreRubro</option>
                 }
             </select>
         </div>
+
         <div class="col-12 mt-3">
-            <button type="submit" class="btn btn-primary">Filtrar</button>
+            <button type="submit" class="btn btn-primary me-2">Filtrar</button>
+            <a href="@Url.Action("ListadoGastos", "Reportes")" class="btn btn-secondary">Borrar Filtros</a>
         </div>
     </form>
 
     <!-- Resultados -->
     @if (Model.Resultados.Any())
     {
+        <p>Total: @Model.Moneda @Model.Total</p>
+
         <table class="table table-bordered table-sm">
             <thead class="table-light">
                 <tr>
@@ -68,18 +83,19 @@
         </table>
 
         <a class="btn btn-success mt-2"
-   href="@Url.Action("ExportarExcel", "Reportes", new { 
-       fechaDesde = Model.FechaDesde?.ToString("yyyy-MM-dd"), 
-       fechaHasta = Model.FechaHasta?.ToString("yyyy-MM-dd"), 
-       usuarioId = Model.UsuarioId, 
-       rubroId = Model.RubroId 
-   })">
-    📤 Exportar a Excel
-</a>
+           href="@Url.Action("ExportarExcel", "Reportes", new {
+               fechaDesde = Model.FechaDesde?.ToString("yyyy-MM-dd"),
+               fechaHasta = Model.FechaHasta?.ToString("yyyy-MM-dd"),
+               usuarioId = Model.UsuarioId,
+               rubroId = Model.RubroId,
+                moneda = Model.Moneda
+
+           })">
+            📤 Exportar a Excel
+        </a>
     }
-    else
+    else if (Model.FechaDesde != null)
     {
         <div class="alert alert-info">No se encontraron gastos con los filtros seleccionados.</div>
     }
 </div>
-

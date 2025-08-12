@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GestorDeGastos.ViewModels
 {
-    public class GastoViewModel
+    public class GastoViewModel : IValidatableObject
     {
         [Required(ErrorMessage = "Campo obligatorio")]
         public DateTime FechaGasto { get; set; } = DateTime.Now;
@@ -26,5 +26,12 @@ namespace GestorDeGastos.ViewModels
 
         public GastoViewModel() { }
 
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (FechaGasto > DateTime.Today)
+            {
+                yield return new ValidationResult("La fecha no puede ser futura.", new[] { nameof(FechaGasto) });
+            }
+        }
     }
 }

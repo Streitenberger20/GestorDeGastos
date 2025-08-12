@@ -16,9 +16,10 @@ namespace GestorDeGastos.Models
         public int RolId { get; set; }
         [ValidateNever]
         public Rol Rol { get; set; }
-
+        [ValidateNever]
         public ICollection<Gasto> Gastos { get; set; }
 
+        public bool esActivo { get; set; } = true;
         public Usuario() { }
     }
 }

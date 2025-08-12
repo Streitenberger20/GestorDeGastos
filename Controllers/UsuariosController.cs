@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using GestorDeGastos.Data;
+using GestorDeGastos.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using GestorDeGastos.Data;
-using GestorDeGastos.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace GestorDeGastos.Controllers
 {
@@ -22,7 +24,7 @@ namespace GestorDeGastos.Controllers
         // GET: Usuarios
         public async Task<IActionResult> ListadoUsuarios()
         {
-            var appDbContext = _context.Usuarios.Include(u => u.Rol);
+            var appDbContext = _context.Usuarios.Include(u => u.Rol).Where(u => u.esActivo);
             return View(await appDbContext.ToListAsync());
         }
 
@@ -41,18 +43,27 @@ namespace GestorDeGastos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearUsuario([Bind("Id,NombreUsuario,Contraseña,RolId")] Usuario usuario)
         {
-                _context.Add(usuario);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(ListadoUsuarios));
+
+            var rolesValidos = _context.Roles.Select(r => r.Id).ToList();
+
+            if (!rolesValidos.Contains(usuario.RolId))
+            {
+                ModelState.AddModelError("RolId", "Entrada Incorrecta");
+            }
+
+            if (!ModelState.IsValid) {
+                ViewData["Rol"] = new SelectList(_context.Roles, "Id", "NombreRol");
+                return View(usuario);
+            }
+
+            _context.Add(usuario);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(ListadoUsuarios));
         }
 
         // GET: Usuarios/Edit/5
         public async Task<IActionResult> EditarUsuario(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null)
@@ -70,51 +81,42 @@ namespace GestorDeGastos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarUsuario(int id, [Bind("Id,NombreUsuario,Contraseña,RolId")] Usuario usuario)
         {
-            if (id != usuario.Id)
+            var rolesValidos = _context.Roles.Select(r => r.Id).ToList();
+
+            if (!rolesValidos.Contains(usuario.RolId))
             {
-                return NotFound();
+                ModelState.AddModelError("RolId", "Entrada Incorrecta");
             }
 
-               _context.Update(usuario);
-               await _context.SaveChangesAsync();
+            if (!ModelState.IsValid)
+            {
+                ViewData["RolId"] = new SelectList(_context.Roles, "Id", "NombreRol");
+                return View(usuario);
+            }
 
-               return RedirectToAction(nameof(ListadoUsuarios));
+            _context.Update(usuario);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(ListadoUsuarios));
 
         }
 
-      /*  // GET: Usuarios/Delete/5
-        public async Task<IActionResult> EliminarUsuario(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var usuario = await _context.Usuarios
-                .Include(u => u.Rol)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (usuario == null)
-            {
-                return NotFound();
-            }
-
-            return View(usuario);
-        }
 
         // POST: Usuarios/Delete/5
         [HttpPost, ActionName("EliminarUsuario")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> EliminarUsuario(int id)
         {
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario != null)
             {
-                _context.Usuarios.Remove(usuario);
+                usuario.esActivo = false;
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(ListadoUsuarios));
-        }*/
+        }
 
         private bool UsuarioExists(int id)
         {

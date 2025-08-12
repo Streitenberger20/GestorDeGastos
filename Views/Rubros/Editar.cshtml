@@ -1,0 +1,123 @@
+﻿@model GestorDeGastos.ViewModels.EditarRubroViewModel
+
+<h2>Editar Rubro</h2>
+
+<form asp-action="Editar" method="post">
+
+    <input type="hidden" asp-for="Id" />
+
+    <div>
+        <label>Nombre Rubro</label>
+        <input asp-for="NombreRubro" />
+    </div>
+
+    <h3>Detalles</h3>
+
+    <table id="tablaDetalles" border="1" style="border-collapse: collapse; width: 100%;">
+        <thead>
+            <tr>
+                <th>Descripción</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Detalles.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <input type="hidden" name="Detalles[@i].Id" value="@Model.Detalles[i].Id" />
+                        <input type="text" name="Detalles[@i].Descripcion" value="@Model.Detalles[i].Descripcion" style="width: 100%;" />
+                    </td>
+                    <td style="text-align:center;">
+                        <button type="button" class="btnEliminarDetalle">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div style="margin-top: 10px;">
+        <input type="text" id="nuevoDetalleDescripcion" placeholder="Nueva descripción" style="width: 80%;" />
+        <button type="button" id="btnAgregarDetalle">Agregar Detalle</button>
+    </div>
+
+    <h3>Roles asignados</h3>
+    <div>
+        @foreach (var rol in Model.RolesDisponibles)
+        {
+            var checkedAttr = Model.RolesSeleccionados.Contains(rol.Id) ? "checked" : "";
+            <label style="display:block; margin-bottom: 5px;">
+                <input type="checkbox" name="RolesSeleccionados" value="@rol.Id" @checkedAttr />
+                @rol.NombreRol
+            </label>
+        }
+    </div>
+
+    <div style="margin-top: 15px;">
+        <button type="submit">Guardar Cambios</button>
+    </div>
+</form>
+
+<script>
+    // Función para eliminar una fila de detalle
+    document.querySelectorAll('.btnEliminarDetalle').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const fila = this.closest('tr');
+            fila.remove();
+            actualizarIndices();
+        });
+    });
+
+    // Función para actualizar los índices de los inputs después de eliminar o agregar filas
+    function actualizarIndices() {
+        const filas = document.querySelectorAll('#tablaDetalles tbody tr');
+        filas.forEach((fila, index) => {
+            const inputs = fila.querySelectorAll('input');
+            inputs.forEach(input => {
+                if (input.name.includes('Detalles')) {
+                    if (input.name.includes('.Id')) {
+                        input.name = `Detalles[${index}].Id`;
+                    } else if (input.name.includes('.Descripcion')) {
+                        input.name = `Detalles[${index}].Descripcion`;
+                    }
+                }
+            });
+        });
+    }
+
+    // Agregar nuevo detalle a la tabla
+    document.getElementById('btnAgregarDetalle').addEventListener('click', () => {
+        const descInput = document.getElementById('nuevoDetalleDescripcion');
+        const desc = descInput.value.trim();
+
+        if (!desc) {
+            alert('Ingrese una descripción válida');
+            return;
+        }
+
+        const tbody = document.querySelector('#tablaDetalles tbody');
+        const rowCount = tbody.querySelectorAll('tr').length;
+
+        const nuevaFila = document.createElement('tr');
+
+        nuevaFila.innerHTML = `
+            <td>
+                <input type="hidden" name="Detalles[${rowCount}].Id" value="0" />
+                <input type="text" name="Detalles[${rowCount}].Descripcion" value="${desc}" style="width: 100%;" />
+            </td>
+            <td style="text-align:center;">
+                <button type="button" class="btnEliminarDetalle">Eliminar</button>
+            </td>
+        `;
+
+        tbody.appendChild(nuevaFila);
+
+        // Agregar event listener al nuevo botón eliminar
+        nuevaFila.querySelector('.btnEliminarDetalle').addEventListener('click', function () {
+            this.closest('tr').remove();
+            actualizarIndices();
+        });
+
+        descInput.value = '';
+    });
+</script>
