@@ -1,7 +1,7 @@
 ﻿@model GestorDeGastos.ViewModels.GastoFiltroViewModel
 
 <div class="container mt-4">
-    <h2>📋 Listado de Gastos</h2>
+    <h2>Reporte de Gastos</h2>
 
     <!-- Filtros -->
     <form method="get" class="row mb-4" id="formFiltros">
@@ -57,7 +57,32 @@
     <!-- Resultados -->
     @if (Model.Resultados.Any())
     {
-        <p>Total: @Model.Moneda @Model.Total</p>
+
+        <div class="row">
+
+            <div class="col-6">
+                <p><strong>Total: @Model.Moneda @Model.Total.ToString("N2")</strong></p>
+            </div>
+
+            <div class="col-6 text-end">
+                        <a class="btn btn-success mt-2"
+           href="@Url.Action("ExportarExcel", "Reportes", new {
+               fechaDesde = Model.FechaDesde?.ToString("yyyy-MM-dd"),
+               fechaHasta = Model.FechaHasta?.ToString("yyyy-MM-dd"),
+               usuarioId = Model.UsuarioId,
+               rubroId = Model.RubroId,
+                moneda = Model.Moneda
+
+           })">
+            📤 Exportar a Excel
+        </a>
+                </div>
+
+
+        </div>
+
+
+
 
         <table class="table table-bordered table-sm">
             <thead>
@@ -90,17 +115,7 @@
             </tbody>
         </table>
 
-        <a class="btn btn-success mt-2"
-           href="@Url.Action("ExportarExcel", "Reportes", new {
-               fechaDesde = Model.FechaDesde?.ToString("yyyy-MM-dd"),
-               fechaHasta = Model.FechaHasta?.ToString("yyyy-MM-dd"),
-               usuarioId = Model.UsuarioId,
-               rubroId = Model.RubroId,
-                moneda = Model.Moneda
 
-           })">
-            📤 Exportar a Excel
-        </a>
     }
     else if (Model.FechaDesde != null)
     {

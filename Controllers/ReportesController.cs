@@ -1,4 +1,6 @@
-﻿using GestorDeGastos.Data;
+﻿using ClosedXML.Excel;
+using GestorDeGastos.Data;
+using GestorDeGastos.Models;
 using GestorDeGastos.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -74,6 +76,7 @@ namespace GestorDeGastos.Controllers
         }
 
         [HttpGet]
+        [HttpGet]
         public async Task<IActionResult> ExportarExcel(DateTime? fechaDesde, DateTime? fechaHasta, int? usuarioId, int? rubroId, string moneda)
         {
             var query = _context.Gastos
@@ -102,36 +105,115 @@ namespace GestorDeGastos.Controllers
                 .ToListAsync();
 
             using var workbook = new ClosedXML.Excel.XLWorkbook();
-            var worksheet = workbook.Worksheets.Add("Gastos");
+            var ws = workbook.Worksheets.Add("Gastos");
 
-            // Encabezados
-            worksheet.Cell(1, 1).Value = "Fecha";
-            worksheet.Cell(1, 2).Value = "Usuario";
-            worksheet.Cell(1, 3).Value = "Rubro";
-            worksheet.Cell(1, 4).Value = "Detalle";
-            worksheet.Cell(1, 5).Value = "Monto";
-            worksheet.Cell(1, 6).Value = "Moneda";
+            int fila = 1;
 
-            // Cargar filas
-            for (int i = 0; i < lista.Count; i++)
+            // ================== BLOQUE 1: Gastos normales ==================
+            ws.Cell(fila, 1).Value = "📌 Gastos Activos";
+            ws.Range(fila, 1, fila, 7).Merge().Style
+                .Font.SetBold()
+                .Font.FontColor = XLColor.White;
+            ws.Range(fila, 1, fila, 7).Style.Fill.BackgroundColor = XLColor.Green;
+            fila++;
+
+            EscribirEncabezados(ws, fila); fila++;
+
+            foreach (var g in lista.Where(x => x.esActivo && x.Importe >= 0))
             {
-                var g = lista[i];
-                worksheet.Cell(i + 2, 1).Value = g.FechaGasto.ToString("yyyy-MM-dd");
-                worksheet.Cell(i + 2, 2).Value = g.Usuario.NombreUsuario;
-                worksheet.Cell(i + 2, 3).Value = g.Rubro.NombreRubro;
-                worksheet.Cell(i + 2, 4).Value = g.Detalle.NombreDetalle;
-                worksheet.Cell(i + 2, 5).Value = g.Importe;
-                worksheet.Cell(i + 2, 6).Value = g.Moneda;
+                EscribirFila(ws, g, fila++);
             }
 
-            // Formato autoajustado
-            worksheet.Columns().AdjustToContents();
+            // Total bloque 1
+            var totalActivos = lista.Where(x => x.esActivo && x.Importe >= 0).Sum(x => x.Importe);
+            ws.Cell(fila, 3).Value = "TOTAL";
+            ws.Cell(fila, 4).Value = totalActivos;
+            ws.Cell(fila, 3).Style.Font.Bold = true;
+            ws.Cell(fila, 4).Style.Font.Bold = true;
+            ws.Cell(fila, 3).Style.Fill.BackgroundColor = XLColor.LightGray;
+            ws.Cell(fila, 4).Style.Fill.BackgroundColor = XLColor.LightGray;
+            ws.Cell(fila, 4).Style.NumberFormat.Format = "_-* #,##0.00_-;-* #,##0.00_-;_-* \"-\"??_-;_-@_-";
+            fila += 2;
+
+            // ================== BLOQUE 2: Cancelados y Créditos ==================
+            ws.Cell(fila, 1).Value = "📌 Gastos Cancelados y Créditos";
+            ws.Range(fila, 1, fila, 7).Merge().Style
+                .Font.SetBold()
+                .Font.FontColor = XLColor.Black;
+            ws.Range(fila, 1, fila, 7).Style.Fill.BackgroundColor = XLColor.Orange;
+            fila++;
+
+            EscribirEncabezados(ws, fila); fila++;
+
+            foreach (var g in lista.Where(x => !x.esActivo || x.Importe < 0))
+            {
+                if (!g.esActivo)
+                    EscribirFila(ws, g, fila++, XLColor.LightPink); // cancelado
+                else if (g.Importe < 0)
+                    EscribirFila(ws, g, fila++, XLColor.LightYellow); // crédito
+            }
+
+            var totalEspeciales = lista.Where(x => !x.esActivo || x.Importe < 0).Sum(x => x.Importe);
+            ws.Cell(fila, 3).Value = "TOTAL";
+            ws.Cell(fila, 4).Value = totalEspeciales;
+            ws.Cell(fila, 3).Style.Font.Bold = true;
+            ws.Cell(fila, 4).Style.Font.Bold = true;
+            ws.Cell(fila, 3).Style.Fill.BackgroundColor = XLColor.LightGray;
+            ws.Cell(fila, 4).Style.Fill.BackgroundColor = XLColor.LightGray;
+            ws.Cell(fila, 4).Style.NumberFormat.Format = "_-* #,##0.00_-;-* #,##0.00_-;_-* \"-\"??_-;_-@_-";
+            fila += 2;
+
+            // ================== TOTAL GENERAL ==================
+            ws.Cell(fila, 5).Value = "TOTAL GENERAL";
+            ws.Cell(fila, 6).Value = lista.Sum(x => x.Importe);
+            ws.Range(fila, 5, fila, 6).Style.Font.Bold = true;
+            ws.Cell(fila, 6).Style.NumberFormat.Format = "_-* #,##0.00_-;-* #,##0.00_-;_-* \"-\"??_-;_-@_-";
+            ws.Cell(fila, 5).Style.Fill.BackgroundColor = XLColor.LightGray;
+            ws.Cell(fila, 6).Style.Fill.BackgroundColor = XLColor.LightGray;
+
+            ws.Columns().AdjustToContents();
 
             // Devolver archivo
             using var stream = new MemoryStream();
             workbook.SaveAs(stream);
             stream.Seek(0, SeekOrigin.Begin);
-            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ReportesGastos-" + DateTime.Now.ToString() + ".xlsx");
+            return File(stream.ToArray(),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"ReportesGastos-{DateTime.Now:yyyyMMdd-HHmm}.xlsx");
+        }
+
+        private void EscribirEncabezados(IXLWorksheet ws, int fila)
+        {
+            ws.Cell(fila, 1).Value = "Fecha";
+            ws.Cell(fila, 2).Value = "Usuario";
+            ws.Cell(fila, 3).Value = "Moneda";
+            ws.Cell(fila, 4).Value = "Monto";
+            ws.Cell(fila, 5).Value = "Rubro";
+            ws.Cell(fila, 6).Value = "Detalle";
+            ws.Cell(fila, 7).Value = "Comentario";
+
+            ws.Cell(fila, 4).Style.NumberFormat.Format = "_-* #,##0.00_-;-* #,##0.00_-;_-* \"-\"??_-;_-@_-";
+
+            ws.Range(fila, 1, fila, 7).Style.Font.Bold = true;
+            ws.Range(fila, 1, fila, 7).Style.Fill.BackgroundColor = XLColor.LightGray;
+        }
+
+        private void EscribirFila(IXLWorksheet ws, Gasto g, int fila, XLColor? color = null)
+        {
+            ws.Cell(fila, 1).Value = g.FechaGasto.ToString("yyyy-MM-dd");
+            ws.Cell(fila, 2).Value = g.Usuario.NombreUsuario;
+            ws.Cell(fila, 3).Value = g.Moneda;
+            ws.Cell(fila, 4).Value = g.Importe;
+            ws.Cell(fila, 5).Value = g.Rubro.NombreRubro;
+            ws.Cell(fila, 6).Value = g.Detalle.NombreDetalle;
+            ws.Cell(fila, 7).Value = g.Comentario;
+
+            ws.Cell(fila, 4).Style.NumberFormat.Format = "_-* #,##0.00_-;-* #,##0.00_-;_-* \"-\"??_-;_-@_-";
+
+            if (color != null)
+            {
+                ws.Range(fila, 1, fila, 7).Style.Fill.BackgroundColor = color;
+            }
         }
     }
 }

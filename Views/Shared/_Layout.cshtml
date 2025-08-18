@@ -58,10 +58,19 @@
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Gastos" asp-action="RegistrarGasto">Gastos</a>
                                 </li>
 
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Reportes" asp-action="ListadoGastos">Reportes</a>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Reportes
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li class="dropdown-item">
+                                            <a class="dropdown-item text-dark" asp-area="" asp-controller="Reportes" asp-action="ListadoGastos">Reporte de Gastos</a>
+                                        </li>
+                                        <li class="dropdown-item">
+                                            <a class="dropdown-item text-dark" asp-area="" asp-controller="Comparativa" asp-action="index">Comparar por Rubros</a>
+                                        </li>
+                                    </ul>
                                 </li>
-
 
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

@@ -24,7 +24,7 @@ namespace GestorDeGastos.Controllers
             var primerDiaMesActual = new DateTime(hoy.Year, hoy.Month, 1);
             var seisMesesAtras = hoy.AddMonths(-5);
 
-            var gastos = await _context.Gastos
+            var gastos = await _context.Gastos.Where(g => g.esActivo && g.Importe >= 0)
                 .Include(g => g.Usuario)
                 .Include(g => g.Rubro)
                 .Include(g => g.Detalle)

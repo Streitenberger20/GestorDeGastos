@@ -5,7 +5,7 @@
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4">📊 Dashboard de Gastos - Jefe</h2>
+    <h2 class="mb-4">Gastos del Mes</h2>
 
     <!-- Totales del mes actual -->
     <div class="row my-4">
@@ -33,7 +33,7 @@
         <div class="col-md-6 mb-3">
             <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-title">📁 Distribución por Rubros (Pesos)</h5>
+                    <h5 class="card-title">Distribución por Rubros (Pesos)</h5>
                     @if (Model.CategoriasDelMes.Any(c => c.TotalPesos != 0))
                     {
                         <div style="height: 300px;">
@@ -54,7 +54,7 @@
         <div class="col-md-6 mb-3">
             <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-title">📁 Distribución por Rubros (Dólares)</h5>
+                    <h5 class="card-title">Distribución por Rubros (Dólares)</h5>
                     @if (Model.CategoriasDelMes.Any(c => c.TotalDolares != 0))
                     {
                         <div style="height: 300px;">
@@ -72,57 +72,12 @@
         </div>
     </div>
 
-    <!-- Sección de Comparativa 6 meses -->
-    <div class="row mb-4">
-        <!-- Comparativa 6 meses pesos -->
-        <div class="col-md-6 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">📈 Comparativa AR$ - Últimos 6 meses</h5>
-                    @if (Model.Comparativa6Meses.Any(m => m.TotalPesos != 0))
-                    {
-                        <div style="height: 300px;">
-                            <canvas id="graficoComparativaPesos"></canvas>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-info text-center mt-3">
-                            No hay datos para la comparativa.
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <!-- Comparativa 6 meses dolares -->
-        <div class="col-md-6 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">📈 Comparativa USD - Últimos 6 meses</h5>
-                    @if (Model.Comparativa6Meses.Any(m => m.TotalDolares != 0))
-                    {
-                        <div style="height: 300px;">
-                            <canvas id="graficoComparativaDolares"></canvas>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-info text-center mt-3">
-                            No hay datos para la comparativa.
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Tabla de gastos en pesos -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">💰 Gastos en Pesos (Mes Actual)</h5>
+                    <h5 class="card-title">Gastos en Pesos (Mes Actual)</h5>
                     @if (Model.GastosPesos.Any())
                     {
                         <div class="table-responsive">
@@ -167,12 +122,12 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">💵 Gastos en Dólares (Mes Actual)</h5>
+                    <h5 class="card-title">Gastos en Dólares (Mes Actual)</h5>
                     @if (Model.GastosDolares.Any())
                     {
                         <div class="table-responsive">
                             <table class="table table-bordered table-sm">
-                                <thead class="table-light">
+                                <thead>
                                     <tr>
                                         <th>Fecha</th>
                                         <th>Usuario</th>
@@ -206,6 +161,54 @@
             </div>
         </div>
     </div>
+
+
+    <!-- Sección de Comparativa 6 meses -->
+    <div class="row mb-4">
+        <!-- Comparativa 6 meses pesos -->
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Comparativa AR$ - Últimos 6 meses</h5>
+                    @if (Model.Comparativa6Meses.Any(m => m.TotalPesos != 0))
+                    {
+                        <div style="height: 300px;">
+                            <canvas id="graficoComparativaPesos"></canvas>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center mt-3">
+                            No hay datos para la comparativa.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparativa 6 meses dolares -->
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Comparativa USD - Últimos 6 meses</h5>
+                    @if (Model.Comparativa6Meses.Any(m => m.TotalDolares != 0))
+                    {
+                        <div style="height: 300px;">
+                            <canvas id="graficoComparativaDolares"></canvas>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center mt-3">
+                            No hay datos para la comparativa.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
 </div>
 
 @section Scripts {
