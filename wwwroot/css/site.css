@@ -30,7 +30,7 @@ h2 {
 }
 
 /* Botones */
-.btn-primary {
+.btn-primary{
     background-color: #9A1C1E;
     border: none;
     padding: 10px 20px;
@@ -46,6 +46,33 @@ h2 {
 .btn-danger {
     background-color: #D32F2F;
     border: none;
+}
+
+/* BOTONES OUTLINE */
+.btn-outline-primary {
+    color: #9A1C1E; /* mismo rojo que tu primario */
+    border: 2px solid #9A1C1E;
+    background-color: transparent;
+    padding: 10px 20px;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+    .btn-outline-primary:hover,
+    .btn-outline-primary:focus,
+    .btn-check:checked + .btn-outline-primary {
+        background-color: #9A1C1E; /* se rellena con tu primario */
+        color: #fff; /* texto blanco */
+        border-color: #9A1C1E;
+    }
+
+/* Estado activo (cuando está seleccionado en btn-check) */
+.btn-check:active + .btn-outline-primary,
+.btn-check:checked + .btn-outline-primary {
+    background-color: #7A1618; /* el hover que usas */
+    color: #fff;
+    border-color: #7A1618;
 }
 
 /* Tabla */

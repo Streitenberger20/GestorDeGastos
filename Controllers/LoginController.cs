@@ -20,11 +20,11 @@ namespace GestorDeGastos.Controllers
         [HttpGet]
         public ActionResult Login()
         {
-            if (User.IsInRole("Jefe"))
+            if (User.Identity.IsAuthenticated && User.IsInRole("JEFE"))
             {
                return RedirectToAction("Index", "Home");
             }
-            if (User.IsInRole("Empleado"))
+            else if (User.Identity.IsAuthenticated && !User.IsInRole("JEFE"))
             {
                 return RedirectToAction("RegistrarGasto", "Gastos");
             }
@@ -37,8 +37,10 @@ namespace GestorDeGastos.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string nombreUsuario, string contraseña)
         {
+            nombreUsuario = nombreUsuario.ToUpper().Trim();
+
             var usuario = db.Usuarios.Include(u => u.Rol)
-                .FirstOrDefault(u => u.NombreUsuario == nombreUsuario && u.Contraseña == contraseña && u.esActivo);
+                .FirstOrDefault(u => u.NombreUsuario.ToUpper() == nombreUsuario && u.Contraseña == contraseña && u.esActivo);
 
             if (usuario != null)
             {
@@ -54,7 +56,7 @@ namespace GestorDeGastos.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-                if (principal.IsInRole("Jefe"))
+                if (principal.IsInRole("JEFE"))
                 {
                     return RedirectToAction("Index", "Home");
                 }

@@ -18,13 +18,13 @@
                     <form asp-action="Login" method="post">
                         <div class="form-group mb-3">
                             <label asp-for="NombreUsuario" class="form-label">Usuario</label>
-                            <input asp-for="NombreUsuario" class="form-control" placeholder="Ingrese su usuario" />
+                            <input asp-for="NombreUsuario" class="form-control text-uppercase" />
                             <span asp-validation-for="NombreUsuario" class="text-danger small"></span>
                         </div>
 
                         <div class="form-group mb-3">
                             <label asp-for="Contraseña" class="form-label">Contraseña</label>
-                            <input asp-for="Contraseña" type="password" class="form-control" placeholder="Ingrese su contraseña" />
+                            <input asp-for="Contraseña" type="password" class="form-control" />
                             <span asp-validation-for="Contraseña" class="text-danger small"></span>
                         </div>
 

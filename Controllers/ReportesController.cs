@@ -1,10 +1,12 @@
 ﻿using GestorDeGastos.Data;
 using GestorDeGastos.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestorDeGastos.Controllers
 {
+    [Authorize(Roles = "JEFE")]
     public class ReportesController : Controller
     {
         private readonly AppDbContext _context;
@@ -55,8 +57,14 @@ namespace GestorDeGastos.Controllers
                 FechaHasta = fechaHasta,
                 UsuarioId = usuarioId,
                 RubroId = rubroId,
-                Usuarios = await _context.Usuarios.ToListAsync(),
-                Rubros = await _context.Rubros.ToListAsync(),
+                Usuarios = await _context.Usuarios
+                .Where(u => u.esActivo)
+                .OrderBy(u => u.NombreUsuario)
+                .ToListAsync(),
+                Rubros = await _context.Rubros
+                .Where(r => r.esActivo)
+                .OrderBy(r => r.NombreRubro)
+                .ToListAsync(),
                 Resultados = resultados,
                 Total = resultados.Sum(r => r.Monto),
                 Moneda = moneda
@@ -123,7 +131,7 @@ namespace GestorDeGastos.Controllers
             using var stream = new MemoryStream();
             workbook.SaveAs(stream);
             stream.Seek(0, SeekOrigin.Begin);
-            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ReportesGastos-"+DateTime.Now.ToString()+".xlsx");
+            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ReportesGastos-" + DateTime.Now.ToString() + ".xlsx");
         }
     }
 }

@@ -1,15 +1,16 @@
-﻿using DocumentFormat.OpenXml.Bibliography;
+﻿
 using GestorDeGastos.Data;
 using GestorDeGastos.Models;
 using GestorDeGastos.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
 namespace GestorDeGastos.Controllers
 {
+    [Authorize]
     public class GastosController : Controller
     {
         private readonly AppDbContext _context;
@@ -27,7 +28,7 @@ namespace GestorDeGastos.Controllers
             var rol = _context.Roles
                 .Include(r => r.RolRubros.Where(rr => rr.EsActivo))
                     .ThenInclude(rr => rr.Rubro)
-                    .ThenInclude(r => r.Detalles)
+                    .ThenInclude(r => r.Detalles.Where(d => d.esActivo))
                 .FirstOrDefault(r => r.NombreRol == rolNombre);
 
             var rubros = rol?.RolRubros.Select(rr => rr.Rubro).Where(rr => rr.Detalles.Count != 0).ToList() ?? new List<Rubro>();
@@ -77,10 +78,11 @@ namespace GestorDeGastos.Controllers
             {
                 var rolNombre = User.FindFirst(ClaimTypes.Role)?.Value;
                 var rol = _context.Roles
-                .Include(r => r.RolRubros.Where(rr => rr.EsActivo))
-                .ThenInclude(rr => rr.Rubro)
-                .FirstOrDefault(r => r.NombreRol == rolNombre);
-                var rubros = rol.RolRubros.Select(rr => rr.Rubro).Where(rr => rr.Detalles.Count != 0 && rr.esActivo).ToList();
+                    .Include(r => r.RolRubros.Where(rr => rr.EsActivo))
+                        .ThenInclude(rr => rr.Rubro)
+                        .ThenInclude(r => r.Detalles.Where(d => d.esActivo))
+                    .FirstOrDefault(r => r.NombreRol == rolNombre);
+                var rubros = rol?.RolRubros.Select(rr => rr.Rubro).Where(rr => rr.Detalles.Count != 0).ToList() ?? new List<Rubro>();
                 ViewBag.Rubros = new SelectList(rubros, "Id", "NombreRubro");
                 ViewBag.UltimosGastos = _context.Gastos
                 .Where(g => g.UsuarioId == usuarioId && g.esActivo && g.Importe>0)
@@ -115,7 +117,7 @@ namespace GestorDeGastos.Controllers
             var gasto = _context.Gastos.Find(id);
             if (gasto == null) return NotFound();
             gasto.esActivo = false;
-            gasto.Comentario = "Gasto eliminado";
+            gasto.Comentario = "Gasto eliminado: " + gasto.Id;
 
             var credito = new Gasto
             {

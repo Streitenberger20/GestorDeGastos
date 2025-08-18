@@ -5,14 +5,27 @@
 
     <!-- Filtros -->
     <form method="get" class="row mb-4" id="formFiltros">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label>Desde <span class="text-danger">*</span></label>
             <input type="date" class="form-control" name="fechaDesde" value="@Model.FechaDesde?.ToString("yyyy-MM-dd")" required />
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label>Hasta <span class="text-danger">*</span></label>
             <input type="date" class="form-control" name="fechaHasta" value="@Model.FechaHasta?.ToString("yyyy-MM-dd")" required />
         </div>
+
+        <div class="col-md-2">
+            <label>Moneda <span class="text-danger">*</span></label>
+            <select class="form-select" name="moneda" required>
+                <option value="">Seleccione</option>
+                @foreach (var m in Model.Monedas)
+                {
+                    <option value="@m" selected="@(m == Model.Moneda ? "selected" : null)">@m</option>
+                }
+            </select>
+        </div>
+
+
         <div class="col-md-3">
             <label>Usuario</label>
             <select class="form-select" name="usuarioId">
@@ -24,16 +37,6 @@
             </select>
         </div>
 
-        <div class="col-md-3">
-            <label>Moneda <span class="text-danger">*</span></label>
-            <select class="form-select" name="moneda" required>
-                <option value="">Seleccione</option>
-                @foreach (var m in Model.Monedas)
-                {
-                    <option value="@m" selected="@(m == Model.Moneda ? "selected" : null)">@m</option>
-                }
-            </select>
-        </div>
         <div class="col-md-3">
             <label>Rubro</label>
             <select class="form-select" name="rubroId">
@@ -59,7 +62,6 @@
         <table class="table table-bordered table-sm">
             <thead>
                 <tr>
-                    <th>N°</th>
                     <th>Fecha</th>
                     <th>Usuario</th>
                     <th>Moneda</th>
@@ -74,7 +76,6 @@
                 @foreach (var g in Model.Resultados)
                 {
                     <tr class="@((!g.EsActivo) ? "table-danger" : (g.Monto < 0) ? "table-warning" : "")">
-                        <td>@g.NumeroGasto</td>  
                         <td>@g.Fecha.ToShortDateString()</td>
                         <td>@g.Usuario</td>
                         <td>@g.Moneda</td>

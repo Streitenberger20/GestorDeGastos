@@ -1,17 +1,14 @@
-﻿using DocumentFormat.OpenXml.Bibliography;
-using GestorDeGastos.Data;
+﻿using GestorDeGastos.Data;
 using GestorDeGastos.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
+
 
 namespace GestorDeGastos.Controllers
 {
+    [Authorize(Roles = "JEFE")]
     public class UsuariosController : Controller
     {
         private readonly AppDbContext _context;
@@ -32,7 +29,7 @@ namespace GestorDeGastos.Controllers
         // GET: Usuarios/Create
         public IActionResult CrearUsuario()
         {
-            ViewData["Rol"] = new SelectList(_context.Roles, "Id", "NombreRol");
+            ViewData["Rol"] = new SelectList(_context.Roles.Where(r => r.esActivo), "Id", "NombreRol");
             return View();
         }
 
@@ -44,7 +41,7 @@ namespace GestorDeGastos.Controllers
         public async Task<IActionResult> CrearUsuario([Bind("Id,NombreUsuario,Contraseña,RolId")] Usuario usuario)
         {
 
-            var rolesValidos = _context.Roles.Select(r => r.Id).ToList();
+            var rolesValidos = _context.Roles.Where(r => r.esActivo).Select(r => r.Id).ToList();
 
             if (!rolesValidos.Contains(usuario.RolId))
             {
@@ -52,9 +49,24 @@ namespace GestorDeGastos.Controllers
             }
 
             if (!ModelState.IsValid) {
-                ViewData["Rol"] = new SelectList(_context.Roles, "Id", "NombreRol");
+                ViewData["Rol"] = new SelectList(_context.Roles.Where(r => r.esActivo), "Id", "NombreRol");
                 return View(usuario);
             }
+
+            // Normalizamos a MAYÚSCULAS
+            usuario.NombreUsuario = usuario.NombreUsuario.ToUpper().Trim();
+
+            // Validar que no exista ya
+            var existeUsuario = _context.Usuarios
+                .Any(r => r.NombreUsuario.ToUpper() == usuario.NombreUsuario);
+
+            if (existeUsuario)
+            {
+                ModelState.AddModelError("NombreUsuario", "Ya existe un usuario con este nombre.");
+                ViewData["Rol"] = new SelectList(_context.Roles.Where(r => r.esActivo), "Id", "NombreRol");
+                return View(usuario);
+            }
+
 
             _context.Add(usuario);
             await _context.SaveChangesAsync();
@@ -70,7 +82,7 @@ namespace GestorDeGastos.Controllers
             {
                 return NotFound();
             }
-            ViewData["RolId"] = new SelectList(_context.Roles, "Id", "NombreRol", usuario.RolId);
+            ViewData["RolId"] = new SelectList(_context.Roles.Where(r => r.esActivo), "Id", "NombreRol", usuario.RolId);
             return View(usuario);
         }
 
@@ -81,7 +93,7 @@ namespace GestorDeGastos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarUsuario(int id, [Bind("Id,NombreUsuario,Contraseña,RolId")] Usuario usuario)
         {
-            var rolesValidos = _context.Roles.Select(r => r.Id).ToList();
+            var rolesValidos = _context.Roles.Where(r => r.esActivo).Select(r => r.Id).ToList();
 
             if (!rolesValidos.Contains(usuario.RolId))
             {
@@ -90,9 +102,23 @@ namespace GestorDeGastos.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewData["RolId"] = new SelectList(_context.Roles, "Id", "NombreRol");
+                ViewData["RolId"] = new SelectList(_context.Roles.Where(r => r.esActivo), "Id", "NombreRol");
                 return View(usuario);
             }
+
+
+            usuario.NombreUsuario = usuario.NombreUsuario.ToUpper().Trim();
+
+            var existeUsuario = _context.Usuarios
+                .Any(r => r.NombreUsuario.ToUpper() == usuario.NombreUsuario && r.Id != usuario.Id);
+
+            if (existeUsuario)
+            {
+                ModelState.AddModelError("NombreUsuario", "Ya existe un usuario con este nombre.");
+                ViewData["RolId"] = new SelectList(_context.Roles.Where(r => r.esActivo), "Id", "NombreRol");
+                return View(usuario);
+            }
+
 
             _context.Update(usuario);
             await _context.SaveChangesAsync();

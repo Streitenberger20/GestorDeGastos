@@ -1,11 +1,13 @@
 ﻿using GestorDeGastos.Data;
 using GestorDeGastos.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace GestorDeGastos.Controllers
 {
+    [Authorize(Roles = "JEFE")]
     public class ComparativaController : Controller
     {
         private readonly AppDbContext _context;

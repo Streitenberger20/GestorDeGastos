@@ -1,16 +1,16 @@
-﻿using GestorDeGastos.Data;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using GestorDeGastos.Data;
 using GestorDeGastos.Models;
 using GestorDeGastos.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace GestorDeGastos.Controllers
 {
+    [Authorize(Roles = "JEFE")]
     public class RolesController : Controller
     {
         private readonly AppDbContext _context;
@@ -21,14 +21,14 @@ namespace GestorDeGastos.Controllers
         }
 
         // GET: Roles
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> ListadoRoles()
         {
             return View(await _context.Roles.Where(r => r.esActivo).ToListAsync());
         }
 
         public IActionResult CrearRol()
         {
-            var rubros = _context.Rubros
+            var rubros = _context.Rubros.Where(r => r.esActivo)
                 .Select(r => new SelectListItem
                 {
                     Value = r.Id.ToString(),
@@ -48,7 +48,7 @@ namespace GestorDeGastos.Controllers
         {
             if (!ModelState.IsValid)
             {
-                model.RubrosDisponibles = _context.Rubros
+                model.RubrosDisponibles = _context.Rubros.Where(r => r.esActivo)
                     .Select(r => new SelectListItem
                     {
                         Value = r.Id.ToString(),
@@ -56,6 +56,26 @@ namespace GestorDeGastos.Controllers
                     }).ToList();
                 return View(model);
             }
+
+            // Normalizamos a MAYÚSCULAS
+            model.NombreRol = model.NombreRol.ToUpper().Trim();
+
+            // Validar que no exista ya
+            var existeRol = _context.Roles.Where(r => r.esActivo)
+                .Any(r => r.NombreRol.ToUpper() == model.NombreRol);
+
+            if (existeRol)
+            {
+                ModelState.AddModelError("NombreRol", "Ya existe un rol con este nombre.");
+                model.RubrosDisponibles = _context.Rubros.Where(r => r.esActivo)
+                .Select(r => new SelectListItem
+                {
+                    Value = r.Id.ToString(),
+                    Text = r.NombreRubro
+                }).ToList();
+                return View(model);
+            }
+
 
             // Crear rol
             var nuevoRol = new Rol
@@ -79,7 +99,7 @@ namespace GestorDeGastos.Controllers
                 _context.SaveChanges();
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("ListadoRoles");
         }
 
         public IActionResult EditarRol(int id)
@@ -88,11 +108,13 @@ namespace GestorDeGastos.Controllers
             if (rol == null) return NotFound();
 
             var rubros = _context.Rubros
+                .Where(r => r.esActivo)
                 .Select(r => new SelectListItem
                 {
                     Value = r.Id.ToString(),
                     Text = r.NombreRubro
-                }).ToList();
+                })
+                .ToList();
 
             var rubrosAsignadosActivos = _context.RolRubros
                 .Where(rr => rr.RolId == id && rr.EsActivo)
@@ -116,6 +138,7 @@ namespace GestorDeGastos.Controllers
             if (!ModelState.IsValid)
             {
                 model.RubrosDisponibles = _context.Rubros
+                    .Where(r => r.esActivo)
                     .Select(r => new SelectListItem
                     {
                         Value = r.Id.ToString(),
@@ -123,6 +146,25 @@ namespace GestorDeGastos.Controllers
                     }).ToList();
                 return View(model);
             }
+
+            model.NombreRol = model.NombreRol?.ToUpper().Trim();
+
+            var existeRol = _context.Roles.Where(r => r.esActivo)
+                .Any(r => r.NombreRol.ToUpper() == model.NombreRol && r.Id != model.RolId);
+
+            if (existeRol)
+            {
+                ModelState.AddModelError("NombreRol", "Ya existe un rol con este nombre.");
+                model.RubrosDisponibles = _context.Rubros
+                .Where(r => r.esActivo)
+                .Select(r => new SelectListItem
+                {
+                    Value = r.Id.ToString(),
+                    Text = r.NombreRubro
+                }).ToList();
+                return View(model);
+            }
+
 
             var rol = _context.Roles.Find(model.RolId);
             if (rol == null) return NotFound();
@@ -172,7 +214,7 @@ namespace GestorDeGastos.Controllers
 
             _context.SaveChanges();
 
-            return RedirectToAction("Index");
+            return RedirectToAction("ListadoRoles");
         }
 
         private bool RolExists(int id)

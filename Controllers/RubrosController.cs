@@ -2,12 +2,14 @@
 using GestorDeGastos.Data;
 using GestorDeGastos.Models;
 using GestorDeGastos.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestorDeGastos.Controllers
 {
+    [Authorize(Roles = "JEFE")]
     public class RubrosController : Controller
     {
         private readonly AppDbContext _context;
@@ -26,7 +28,7 @@ namespace GestorDeGastos.Controllers
         [HttpGet]
         public IActionResult CrearRubro()
         {
-            var roles = _context.Roles.ToList();
+            var roles = _context.Roles.Where(r => r.esActivo).ToList();
 
             ViewBag.Roles = roles;
 
@@ -34,14 +36,18 @@ namespace GestorDeGastos.Controllers
         }
 
         [HttpPost]
-        public IActionResult Crear(CrearRubroViewModel model)
+        public IActionResult CrearRubro(CrearRubroViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                var roles = _context.Roles.ToList();
+                var roles = _context.Roles.Where(r => r.esActivo).ToList();
                 ViewBag.Roles = roles;
                 return View(model);
             }
+
+            // Normalizamos a MAYÚSCULAS
+            model.NombreRubro = model.NombreRubro.ToUpper().Trim();
+
 
             var rubro = new Rubro
             {
@@ -66,9 +72,9 @@ namespace GestorDeGastos.Controllers
         }
 
         // GET: Rubro/Editar/5
-        public IActionResult Editar(int id)
+        public IActionResult EditarRubro(int id)
         {
-            var rubro = _context.Rubros
+            var rubro = _context.Rubros.Where(r => r.esActivo)
                 .Include(r => r.Detalles.Where(d => d.esActivo))
                 .Include(r => r.RolRubros.Where(rr => rr.EsActivo))
                 .ThenInclude(rr => rr.Rol)
@@ -85,8 +91,8 @@ namespace GestorDeGastos.Controllers
                     Id = d.Id,
                     Descripcion = d.NombreDetalle
                 }).ToList(),
-                RolesSeleccionados = rubro.RolRubros.Select(rr => rr.RolId).ToList(),
-                RolesDisponibles = _context.Roles.ToList()
+                RolesSeleccionados = rubro.RolRubros.Where(rr => rr.EsActivo).Select(rr => rr.RolId).ToList(),
+                RolesDisponibles = _context.Roles.Where(r => r.esActivo).ToList()
             };
 
             return View(model);
@@ -95,11 +101,11 @@ namespace GestorDeGastos.Controllers
         // POST: Rubro/Editar
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Editar(EditarRubroViewModel model)
+        public IActionResult EditarRubro(EditarRubroViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                model.RolesDisponibles = _context.Roles.ToList();
+                model.RolesDisponibles = _context.Roles.Where(r => r.esActivo).ToList();
                 return View(model);
             }
 
@@ -184,6 +190,36 @@ namespace GestorDeGastos.Controllers
             _context.SaveChanges();
 
             return RedirectToAction("ListadoRubros");
+        }
+
+        // POST: Rubros/Delete/5
+        [HttpPost, ActionName("EliminarRubro")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarUsuario(int id)
+        {
+            var rubro = _context.Rubros.Include(r => r.Detalles).FirstOrDefault(r => r.Id == id);
+
+            var rolesRubros = _context.RolRubros.Where(rr => rr.RubroId == id).ToList();
+
+            if (rubro != null)
+            {
+
+                // Eliminar las relaciones con los roles
+                foreach (var rolRubro in rolesRubros)
+                {
+                    rolRubro.EsActivo = false;
+                }
+
+                foreach (var detalle in rubro.Detalles)
+                {
+                    detalle.esActivo = false;
+                }
+
+                rubro.esActivo = false;
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(ListadoRubros));
         }
 
 

@@ -1,5 +1,6 @@
 ﻿using GestorDeGastos.Data;
 using GestorDeGastos.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -7,6 +8,7 @@ using System.Globalization;
 
 namespace GestorDeGastos.Controllers
 {
+    [Authorize(Roles = "JEFE")]
     public class HomeController : Controller
     {
         private readonly AppDbContext _context;
